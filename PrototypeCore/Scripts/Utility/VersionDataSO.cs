@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Prototype
 {
-    [CreateAssetMenu(fileName = "VersionData", menuName = ("Prototype/Loader"))]
+    [CreateAssetMenu(fileName = "VersionData", menuName = ("Prototype/VersionData"))]
     public class VersionDataSO : ScriptableObject
     {
         [LabelText("”Œœ∑∞Ê±æ")]

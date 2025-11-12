@@ -35,7 +35,7 @@ namespace Prototype.Loader
                 Debug.Log("加载系统设置");
                 TryDoMigrate(VersionModel.DesktopSave.Version, _storage);
                 GetMemory(_storage);
-            }
+            } 
             else
             {
                 Debug.Log("新用户");

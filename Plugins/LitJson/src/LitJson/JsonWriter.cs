@@ -383,8 +383,9 @@ namespace LitJson
             context.ExpectingValue = false;
         }
 
+#pragma warning disable  // ºöÂÔ¾¯¸æ
         [CLSCompliant(false)]
-        public void Write (ulong number)
+        public void Write(ulong number)
         {
             DoValidation (Condition.Value);
             PutNewline ();
@@ -393,6 +394,8 @@ namespace LitJson
 
             context.ExpectingValue = false;
         }
+#pragma warning restore   // »Ö¸´¾¯¸æ
+
 
         public void WriteArrayEnd ()
         {

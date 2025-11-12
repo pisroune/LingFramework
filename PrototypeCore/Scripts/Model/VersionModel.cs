@@ -23,6 +23,11 @@ namespace Prototype
         public static void StaticInit()
         {
             _dataSO = Resources.Load<VersionDataSO>(DataSOPath);
+            if (_dataSO == null)
+            {
+                Debug.Log("没有找到版本控制文件，你可以在ScriptableObject路径下右键，Create/Prototype/VersionData，即可自动启动版本控制系统");
+                return;
+            }
 
             Debug.Log("当前游戏版本：" + _dataSO.GameVersion + "\n版本更新日期：" + _dataSO.VersionDate);
 
@@ -60,7 +65,6 @@ namespace Prototype
                 Version = _dataSO.GameVersion,
                 Date = _dataSO.VersionDate,
             };
-
 
             //同步当前版本
             JsonTool.JsonSave(Key, _gameVersion);
