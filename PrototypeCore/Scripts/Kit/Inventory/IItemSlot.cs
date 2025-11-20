@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Prototype
+namespace Prototype.Kit.Inventory
 {
     /// <summary>
     /// 道具栏位接口
@@ -19,7 +19,7 @@ namespace Prototype
         bool IsEmpty { get; }
         int Quantity { get; }
 
-        bool[,] Size { get; }    
-        int Weight { get; }
+        bool[,] Size { get; }      //占用格子
+        int Weight { get; }        //重量
     }
 }
