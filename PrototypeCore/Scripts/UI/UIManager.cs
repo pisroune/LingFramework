@@ -1,4 +1,3 @@
-using QFramework.UI;
 using QFramework;
 using System;
 using System.Collections;
@@ -7,7 +6,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace QFramework.UI
+namespace Prototype
 {
     public enum WindowType
     {
@@ -102,7 +101,8 @@ namespace QFramework.UI
         public static Dictionary<Type, IWindowRoot> WindowDict;
         public static Dictionary<Type, IWindowRoot> ActiveWindows;
 
-        public static void Init()
+        [RuntimeInitializeOnLoadMethod]
+        static void Init()
         {
             WindowDict = new Dictionary<Type, IWindowRoot>();
             ActiveWindows = new Dictionary<Type, IWindowRoot>();
@@ -147,7 +147,7 @@ namespace QFramework.UI
             }
 
             string windowName = type.Name;
-            string path = $"Prefabs/Window/{windowName}";
+            string path = $"UI/Window/{windowName}";
             var tmpWinds = Resources.Load<WindowRoot>(path);
             if (tmpWinds == null)
             {

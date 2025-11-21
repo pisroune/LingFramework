@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace QFramework.UI
+namespace Prototype
 {
     /// <summary>
     /// uiÊÂ¼þ¼àÌý²å¼þ

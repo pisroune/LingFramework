@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace QFramework.UI
+namespace Prototype
 {
     /// <summary>
     /// UI组件基类，提供一些方法

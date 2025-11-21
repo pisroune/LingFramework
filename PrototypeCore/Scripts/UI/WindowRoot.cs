@@ -1,11 +1,8 @@
-using QFramework.UI;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using QFramework;
 
 
-namespace QFramework.UI
+namespace Prototype
 {
     public interface IWindowRoot
     {

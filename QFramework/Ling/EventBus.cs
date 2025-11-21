@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Framework
+namespace Prototype
 {
     /// <summary>
     /// 全局事件总线（线程不安全，仅用于主线程游戏逻辑）
