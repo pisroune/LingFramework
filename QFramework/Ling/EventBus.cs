@@ -11,77 +11,79 @@ namespace Prototype
     /// </summary>
     public static class EventBus
     {
-        /// <summary>
-        /// 存储事件类型与监听者列表
-        /// </summary>
-        private static readonly Dictionary<Type, List<Delegate>> _reguisters = new();
+        // 定义一个空的接口，用于在字典里存储泛型容器
+        private interface IEventContainer { }
+
+        // 泛型容器：直接存储 Action<T>，避免 Invoke 时的拆箱和转换
+        private class EventContainer<T> : IEventContainer
+        {
+            public readonly List<Action<T>> Listeners = new List<Action<T>>(8); // 默认容量8，减少扩容
+        }
+
+        // 字典值改为 IEventContainer
+        private static readonly Dictionary<Type, IEventContainer> _events = new Dictionary<Type, IEventContainer>();
 
         /// <summary>
         /// 订阅事件
         /// </summary>
-        public static void Register<T>(Action<T> listener)
+        public static void Register<T>(Action<T> listener) where T : struct
         {
             var type = typeof(T);
-            if (!_reguisters.TryGetValue(type, out var list))
+            if (!_events.TryGetValue(type, out var container))
             {
-                list = new List<Delegate>();
-                _reguisters[type] = list;
+                container = new EventContainer<T>();
+                _events[type] = container;
             }
 
-            if (!list.Contains(listener))
-                list.Add(listener);
+            // 强转一次，获取具体的 List
+            var specificContainer = (EventContainer<T>)container;
+
+            if (!specificContainer.Listeners.Contains(listener))
+            {
+                specificContainer.Listeners.Add(listener);
+            }
         }
 
         /// <summary>
         /// 退订事件
         /// </summary>
-        public static void Unregister<T>(Action<T> listener)
+        public static void Unregister<T>(Action<T> listener) where T : struct
         {
             var type = typeof(T);
-            if (_reguisters.TryGetValue(type, out var list))
+            if (_events.TryGetValue(type, out var container))
             {
-                list.Remove(listener);
-                if (list.Count == 0)
-                    _reguisters.Remove(type);
+                var specificContainer = (EventContainer<T>)container;
+                specificContainer.Listeners.Remove(listener);
+
+                // 可选：如果列表空了，是否移除 Key？
+                // RTS 中为了避免反复 GC，建议保留 Key 和空 List，以空间换时间
             }
         }
 
         /// <summary>
-        /// 只订阅一次（触发后自动退订）
+        /// 发布事件
         /// </summary>
-        public static void RegisterOnce<T>(Action<T> listener)
-        {
-            void Wrapper(T evt)
-            {
-                listener(evt);
-                Unregister<T>(Wrapper);
-            }
-            Register<T>(Wrapper);
-        }
-
-        /// <summary>
-        /// 发布事件（同步触发）
-        /// </summary>
-        public static void Trigger<T>(T evt)
+        public static void Trigger<T>(T evt) where T : struct
         {
             var type = typeof(T);
-            if (!_reguisters.TryGetValue(type, out var list))
-                return;
-
-            // 复制到临时数组，防止回调中修改列表导致异常
-
-            for (int i = list.Count - 1; i >= 0; i--)
+            if (_events.TryGetValue(type, out var container))
             {
-                (list[i] as Action<T>).Invoke(evt);
+                // 【关键优化】：这里只需要做 1 次类型转换，而不是 N 次
+                var listeners = ((EventContainer<T>)container).Listeners;
+
+                // 倒序遍历，允许在回调中 Unregister
+                for (int i = listeners.Count - 1; i >= 0; i--)
+                {
+                    // 直接调用，无需 as 转换，速度极快
+                    // try-catch 放在这里是可选的，RTS中为了性能通常不加，报错直接炸出来修 bug
+                    listeners[i].Invoke(evt);
+                }
             }
         }
 
-        /// <summary>
-        /// 清空所有订阅（慎用）
-        /// </summary>
         public static void ClearAll()
         {
-            _reguisters.Clear();
+            _events.Clear();
         }
     }
 }
