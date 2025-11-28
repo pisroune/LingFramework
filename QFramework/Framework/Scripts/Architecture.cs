@@ -76,7 +76,7 @@ namespace QFramework
             get
             {
                 if (mArchitecture == null)
-                    throw new Exception("未构造架构");
+                    InitArchitecture();
                 return mArchitecture;
             }
         }
