@@ -101,8 +101,7 @@ namespace Prototype
         public static Dictionary<Type, IWindowRoot> WindowDict;
         public static Dictionary<Type, IWindowRoot> ActiveWindows;
 
-        [RuntimeInitializeOnLoadMethod]
-        static void Init()
+        static UIManager()
         {
             WindowDict = new Dictionary<Type, IWindowRoot>();
             ActiveWindows = new Dictionary<Type, IWindowRoot>();

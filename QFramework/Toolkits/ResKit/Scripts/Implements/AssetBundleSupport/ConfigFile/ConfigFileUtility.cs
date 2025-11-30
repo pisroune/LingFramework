@@ -24,6 +24,10 @@ namespace QFramework
             AssetDatabase.RemoveUnusedAssetBundleNames();
 
             var assetBundleNames = abNames ?? AssetDatabase.GetAllAssetBundleNames();
+            foreach (var item in assetBundleNames)
+            {
+                Debug.LogError(item);
+            }
             foreach (var abName in assetBundleNames)
             {
                 var depends = AssetDatabase.GetAssetBundleDependencies(abName, false);
