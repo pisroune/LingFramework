@@ -1,32 +1,26 @@
+using QFramework;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Prototype
 {
-    public class PoolManager : MonoBehaviour
+    /// <summary>
+    /// 面向预制体的资源池管理器
+    /// 
+    /// </summary>
+    public class PoolManager : Singleton<PoolManager>
     {
-        public static PoolManager Instance { get; private set; }
-
         // 字典映射：Prefab的InstanceID -> 具体的对象池
         private Dictionary<int, IObjectPool> _pools = new Dictionary<int, IObjectPool>();
 
         // 根节点，用于收纳不用的物体，保持Hierarchy整洁
         private Transform _poolRoot;
 
-        private void Awake()
+        protected PoolManager()
         {
-            if (Instance == null)
-            {
-                Instance = this;
-                _poolRoot = new GameObject("---PoolRoot---").transform;
-                _poolRoot.SetParent(this.transform);
-                DontDestroyOnLoad(gameObject);
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
+            _poolRoot = new GameObject("---PoolRoot---").transform;
+            _poolRoot.gameObject.AddComponent<DontDestroyOnLoad>();
         }
 
         /// <summary>
@@ -50,6 +44,7 @@ namespace Prototype
         {
             return Spawn(prefab.transform, position, rotation, parent).gameObject;
         }
+
         /// <summary>
         /// 从池中获取对象
         /// </summary>
@@ -98,13 +93,7 @@ namespace Prototype
         }
         public void Despawn(Component component, float delay)
         {
-            Instance.StartCoroutine(DespawnCoroutine(component, delay));
-        }
-
-        private System.Collections.IEnumerator DespawnCoroutine(Component component, float delay)
-        {
-            yield return new WaitForSeconds(delay);
-            Despawn(component);
+            ActionKit.Delay(delay, ()=> { Despawn(component); }).StartCurrentScene();
         }
     }
 }

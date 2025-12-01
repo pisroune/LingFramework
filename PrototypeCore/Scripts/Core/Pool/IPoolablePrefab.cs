@@ -7,7 +7,7 @@ namespace Prototype
     /// <summary>
     /// 池对象接口
     /// </summary>
-    public interface IPoolable
+    public interface IPoolablePrefab
     {
         // 当对象从池中取出时调用
         void OnSpawn();

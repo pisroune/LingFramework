@@ -57,7 +57,7 @@ namespace Prototype
             ActiveCount++;
 
             // 接口调用：通知对象它活了
-            if (instance is IPoolable poolable)
+            if (instance is IPoolablePrefab poolable)
             {
                 poolable.OnSpawn();
             }
@@ -91,7 +91,7 @@ namespace Prototype
             ActiveCount--;
 
             // 接口调用：通知对象它要睡了
-            if (instance is IPoolable poolable)
+            if (instance is IPoolablePrefab poolable)
             {
                 poolable.OnDespawn();
             }
