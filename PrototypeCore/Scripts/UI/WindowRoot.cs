@@ -23,7 +23,7 @@ namespace Prototype
         void OnShowUI();   //全局显示UI，极端情况可以不响应
         void OnHideUI();   //全局隐藏UI，极端情况可以不响应
     }
-    public abstract class WindowRoot : WindowComponent, IWindowRoot
+    public abstract class WindowRoot : ViewController, IWindowRoot
     {
         CanvasGroup _canvasgroup;
 
