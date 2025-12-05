@@ -30,15 +30,15 @@ namespace Prototype.Loader
             _migrates = new List<Migrate>();
             OnInitSpecific();
 
-            if (JsonTool.TryGet<T>(Key, out _storage) && !VersionModel.IsVersionBehine(ResetVersion))
+            if (SaveManager.TryGet<T>(Key, out _storage) && !VersionManager.IsVersionBehine(ResetVersion))
             {
-                Debug.Log("加载系统设置");
-                TryDoMigrate(VersionModel.DesktopSave.Version, _storage);
+                Debug.Log("加载存档：" + Key);
+                TryDoMigrate(VersionManager.DesktopSave.Version, _storage);
                 GetMemory(_storage);
             } 
             else
             {
-                Debug.Log("新用户");
+                Debug.Log("新存档：" + Key);
                 _storage = new T();
                 NewMemory(_storage);
                 Save();
@@ -51,12 +51,12 @@ namespace Prototype.Loader
         public void Save()
         {
             BeforeSave();
-            JsonTool.JsonSave(Key, _storage);
+            SaveManager.Save(Key, _storage);
         }
         protected virtual void BeforeSave() { }
         public void Delete()
         {
-            JsonTool.JsonDelete(Key);
+            SaveManager.DeleteSave(Key);
             OnInit();
         }
 
@@ -69,7 +69,7 @@ namespace Prototype.Loader
             int startIndex = -1;
             for (int i = 0; i < _migrates.Count; i++)
             {
-                if (VersionModel.IsVersionBehine(version, _migrates[i].Version))
+                if (VersionManager.IsVersionBehine(version, _migrates[i].Version))
                 {  //落后于映射的临界值，从这里开始执行映射
                     startIndex = i;
                     break;

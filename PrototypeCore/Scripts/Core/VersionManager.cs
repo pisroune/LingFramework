@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Prototype
 {
-    public class VersionModel
+    public class VersionManager
     {
         static VersionDataSO _dataSO;
         static VersionStorage _desktopSave;   //玩家客户端存档
@@ -30,9 +30,11 @@ namespace Prototype
             }
 
             Debug.Log("当前游戏版本：" + _dataSO.GameVersion + "\n版本更新日期：" + _dataSO.VersionDate);
+            SaveManager.SwitchToSlot(_dataSO.SaveSlot);
+
 
             //尝试加载玩家客户端存档版本
-            if (JsonTool.TryGet<VersionStorage>(Key, out _desktopSave))
+            if (SaveManager.TryGet<VersionStorage>(Key, out _desktopSave))
             {  //加载本地版本成功
                 Debug.Log("本地存档版本：" + _desktopSave.Version + "\n本地版本日期：" + _desktopSave.Date);
                 if (IsVersionBehine(_dataSO.GameVersion))
@@ -56,7 +58,6 @@ namespace Prototype
                     Date = null
                 };
                 Debug.Log("未找到本地存档版本，同步新版本：" + _dataSO.GameVersion);
-
             }
 
             //加载当前游戏版本
@@ -67,7 +68,7 @@ namespace Prototype
             };
 
             //同步当前版本
-            JsonTool.JsonSave(Key, _gameVersion);
+            SaveManager.Save(Key, _gameVersion);
         }
 
         public static bool FullNewGame()
