@@ -23,10 +23,11 @@
  * THE SOFTWARE.
  ****************************************************************************/
 
+using QFramework;
 using System;
 using UnityEngine;
 
-namespace QFramework
+namespace QFrameworkUI
 {
     public class PanelSearchKeys : IPoolType, IPoolable
     {

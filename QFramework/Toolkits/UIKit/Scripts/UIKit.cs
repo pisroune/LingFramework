@@ -6,10 +6,11 @@
  * https://gitee.com/liangxiegame/QFramework
  ****************************************************************************/
 
+using QFramework;
 using System.Collections;
 using UnityEngine;
 
-namespace QFramework
+namespace QFrameworkUI
 {
 #if UNITY_EDITOR
     [ClassAPI("08.UIKit", "UIKit", 0, "UIKit")]

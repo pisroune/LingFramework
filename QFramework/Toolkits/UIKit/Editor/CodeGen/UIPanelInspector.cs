@@ -6,6 +6,7 @@
  * https://gitee.com/liangxiegame/QFramework
  ****************************************************************************/
 
+using QFramework;
 using UnityEditor;
 
 #if UNITY_2021_2_OR_NEWER
@@ -16,7 +17,7 @@ using UnityEditor.Experimental.SceneManagement;
 
 using UnityEngine;
 
-namespace QFramework
+namespace QFrameworkUI
 {
     [CustomEditor(typeof(UIPanel), true)]
     public class UIPanelInspector : Editor

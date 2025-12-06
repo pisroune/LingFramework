@@ -103,6 +103,7 @@ namespace Prototype
 
         static UIManager()
         {
+            PointerIndicatorM = PointerIndicatorMode.Mouse;
             WindowDict = new Dictionary<Type, IWindowRoot>();
             ActiveWindows = new Dictionary<Type, IWindowRoot>();
             WindowTypeParent = new Dictionary<WindowType, GameObject>();
@@ -115,6 +116,9 @@ namespace Prototype
             NewWindowTypeParent<MainFunctionalLayer>(WindowType.MainFunctionalLayer, "Main Functional Layer");
             NewWindowTypeParent<PopupLayer>(WindowType.PopupLayer, "Popup Layer");
             NewWindowTypeParent<FullScreenLayer>(WindowType.FullScreenLayer, "Full Screen Layer");
+            ActionKit.OnUpdate.Register(Update);
+            ActionKit.OnLateUpdate.Register(LateUpdate);
+
 
 
             void NewWindowTypeParent<T>(WindowType windowType, string name) where T : UILayer
@@ -292,6 +296,35 @@ namespace Prototype
             {
                 activeWindow.UpdateWindow();
             }
+
+
+            bool hasPointer = false;
+            IPointer pointer = null;
+            switch (PointerIndicatorM)
+            {
+                case PointerIndicatorMode.Mouse:
+                    hasPointer = TryGetPointer(Input.mousePosition, out pointer);
+                    break;
+                case PointerIndicatorMode.Transform:
+                    hasPointer = IndicatorTrans ? TryGetPointer(Input.mousePosition, out pointer) : false;
+                    break;
+            }
+            if (Pointer != null)
+            {
+                if (Pointer == pointer)
+                {
+                    Pointer.PointerStay();
+                }
+                else
+                {
+                    Pointer.PointerExit();
+                }
+            }
+            if (hasPointer)
+            {
+                Pointer = pointer;
+                Pointer.PointerEnter();
+            }
         }
         public static bool TryPopup()
         {
@@ -316,7 +349,6 @@ namespace Prototype
             }
             return false;
         }
-
         public static void LateUpdate()
         {
             foreach (var activeWindow in ActiveWindows.Values)
@@ -338,6 +370,18 @@ namespace Prototype
                 item.Value.Resume();
             }
         }
+
+
+        #region RayHit
+        public enum PointerIndicatorMode
+        {
+            Mouse,
+            Transform,
+            None
+        }
+        public static PointerIndicatorMode PointerIndicatorM;
+        public static Transform IndicatorTrans;
+        public static IPointer Pointer;
 
         /// <summary>
         /// 判断屏幕射线是否命中UI物体
@@ -406,6 +450,21 @@ namespace Prototype
             }
             return null;
         }
+        public static bool TryGetPointer(Vector2 screenPoint, out IPointer pointer)
+        {
+            PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
+            pointerEventData.position = screenPoint;
+            GraphicRaycaster gr = Canvas.GetComponent<GraphicRaycaster>();
+            List<RaycastResult> results = new List<RaycastResult>();
+            gr.Raycast(pointerEventData, results);
+            if (results.Count != 0)
+            {
+                pointer = results[0].gameObject.GetComponent<IPointer>();
+                return pointer != null;
+            }
+            pointer = null;
+            return false;
+        }
         public static List<Transform> GetAllRayHitTrans(Vector2 screenPoint)
         {
             PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
@@ -420,6 +479,8 @@ namespace Prototype
             }
             return list;
         }
+        #endregion
+
 
         public static bool ShowingUI = true;
         public static void HideAllUI()

@@ -25,7 +25,7 @@
 
 using System;
 
-namespace QFramework
+namespace QFrameworkUI
 {
     
     public enum UILevel

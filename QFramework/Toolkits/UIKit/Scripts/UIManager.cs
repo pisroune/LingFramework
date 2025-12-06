@@ -6,11 +6,12 @@
  * https://gitee.com/liangxiegame/QFramework
  ****************************************************************************/
 
+using QFramework;
 using System;
 using System.Linq;
 using UnityEngine;
 
-namespace QFramework
+namespace QFrameworkUI
 {
     [MonoSingletonPath("UIRoot/Manager")]
     public class UIManager : MonoBehaviour, ISingleton

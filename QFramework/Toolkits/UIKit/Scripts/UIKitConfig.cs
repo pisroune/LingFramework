@@ -23,13 +23,14 @@
  * THE SOFTWARE.
  ****************************************************************************/
 
+using QFramework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace QFramework
+namespace QFrameworkUI
 {
     public class UIKitConfig
     {

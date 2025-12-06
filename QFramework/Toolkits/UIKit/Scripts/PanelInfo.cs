@@ -23,9 +23,10 @@
  * THE SOFTWARE.
  ****************************************************************************/
 
+using QFramework;
 using System;
 
-namespace QFramework
+namespace QFrameworkUI
 {
     public class PanelInfo : IPoolType, IPoolable
     {

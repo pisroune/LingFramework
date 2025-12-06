@@ -23,10 +23,11 @@
  * THE SOFTWARE.
  ****************************************************************************/
 
+using QFramework;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace QFramework
+namespace QFrameworkUI
 {
     [MonoSingletonPath("UIRoot")]
     public class UIRoot : MonoBehaviour,ISingleton
