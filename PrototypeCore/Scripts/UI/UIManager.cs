@@ -1,3 +1,4 @@
+using Game_ProjectReignite;
 using QFramework;
 using System;
 using System.Collections;
@@ -5,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 namespace Prototype
 {
@@ -97,18 +99,25 @@ namespace Prototype
         public static bool UseCanvasGroup = false;    //Use CanvasGroup to active or inactive window, set alpha, interactable, blocks raycasts while SetWinState
         public static Canvas Canvas;
         public static Transform CanvasTrans;
+        public static GameObject LayerPrefab;
         public static Dictionary<WindowType, GameObject> WindowTypeParent;
         public static Dictionary<Type, IWindowRoot> WindowDict;
         public static Dictionary<Type, IWindowRoot> ActiveWindows;
+        public static bool LogUI;
 
         static UIManager()
         {
+            LogUI = false;
             PointerIndicatorM = PointerIndicatorMode.Mouse;
+            LayerPrefab = AssetManager.LoadPrefab("Prefab/UI/Layer");
             WindowDict = new Dictionary<Type, IWindowRoot>();
             ActiveWindows = new Dictionary<Type, IWindowRoot>();
             WindowTypeParent = new Dictionary<WindowType, GameObject>();
-            CanvasTrans = GameObject.Find("Canvas").transform;
-            Canvas = CanvasTrans.GetComponent<Canvas>();
+            Canvas = GameObject.Instantiate(AssetManager.LoadPrefab("Prefab/UI/Canvas")).GetComponent<Canvas>();
+            var eventSystemGo = GameObject.Instantiate(AssetManager.LoadPrefab("Prefab/UI/EventSystem"));
+            GameObject.DontDestroyOnLoad(Canvas);
+            GameObject.DontDestroyOnLoad(eventSystemGo);
+            CanvasTrans = Canvas.transform;
 
             NewWindowTypeParent<EnvironmentUI>(WindowType.EnvironmentUI, "Environment UI");
             NewWindowTypeParent<BaseLayer>(WindowType.BaseLayer, "Base Layer");
@@ -123,8 +132,8 @@ namespace Prototype
 
             void NewWindowTypeParent<T>(WindowType windowType, string name) where T : UILayer
             {
-                GameObject parentGO = new GameObject(name);
-                parentGO.Parent(Canvas);
+                GameObject parentGO = GameObject.Instantiate(LayerPrefab, CanvasTrans);
+                parentGO.name = name;
                 parentGO.AddComponent<T>();
                 WindowTypeParent.Add(windowType, parentGO);
             }
@@ -150,13 +159,13 @@ namespace Prototype
             }
 
             string windowName = type.Name;
-            string path = $"UI/Window/{windowName}";
+            string path = $"Prefab/UI/Windows/{windowName}";
             var tmpWinds = Resources.Load<WindowRoot>(path);
             if (tmpWinds == null)
             {
                 Debug.LogError("Œ¥’“µΩ£∫" + path);
             }
-            var window = GameObject.Instantiate(tmpWinds, Canvas.transform).GetComponent<IWindowRoot>();
+            var window = GameObject.Instantiate(tmpWinds, CanvasTrans).GetComponent<IWindowRoot>();
             window.ThisGameObject.Parent(WindowTypeParent[window.WindowT].transform);
             window.InitOnce();
             window.SetWndActive(false);
@@ -292,6 +301,10 @@ namespace Prototype
 
         public static void Update()
         {
+            if (LogUI)
+            {
+                Debug.Log(GetRayHitTrans(Input.mousePosition));
+            }
             foreach (var activeWindow in ActiveWindows.Values)
             {
                 activeWindow.UpdateWindow();

@@ -36,5 +36,23 @@ namespace QFramework
         {
             return selfList[Random.Range(0, selfList.Length - 1)];
         }
+
+
+#if UNITY_EDITOR
+        // v1 No.5
+        [MethodAPI]
+        [APIDescriptionCN("返回字典中的随机一项元素")]
+        [APIDescriptionEN("返回字典中的随机一项元素")]
+        [APIExampleCode(@"selfDict.GetRandom();")]
+#endif
+        public static KeyValuePair<T, Y> GetRandom<T, Y>(this Dictionary<T, Y> selfDict)
+        {
+            List<KeyValuePair<T, Y>> pairs = new List<KeyValuePair<T, Y>>();
+            foreach (var item in selfDict)
+            {
+                pairs.Add(item);
+            }
+            return pairs.GetRandom();
+        }
     }
 }
