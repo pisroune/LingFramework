@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace QFramework
@@ -69,6 +70,7 @@ namespace QFramework
         private HashSet<IFixedUpdate> _fixedUpdates = new HashSet<IFixedUpdate>();
         private HashSet<ILateUpdate> _lateUpdates = new HashSet<ILateUpdate>();
         protected HashSet<ILingArchitecture> CitationArchitectures = new HashSet<ILingArchitecture>();   //引用架构，获取模块时，如果自身未找到，会尝试从引用架构中查找
+        protected override bool InitAutomatic => false;
 
         protected sealed override void Init()
         {

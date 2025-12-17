@@ -70,42 +70,54 @@ namespace QFramework
         public static Action<T> OnRegisterPatch = architecture => { };
 
         protected static T mArchitecture;
+        protected virtual bool InitAutomatic { get; } = true;
 
         public static IArchitecture Interface
         {
             get
             {
                 if (mArchitecture == null)
-                    InitArchitecture();
+                    AutoInit();
                 return mArchitecture;
             }
         }
 
-
+        static void AutoInit()
+        {
+            mArchitecture = new T();
+            if (!mArchitecture.InitAutomatic)
+            {
+                throw new Exception($"尚未构造架构:{typeof(T)}，该架构重写了InitAutomatic并设为了false，请检查！");
+            }
+            OnInitArchitecture();
+        }
         public static void InitArchitecture()
         {
             if (mArchitecture == null)
             {
                 mArchitecture = new T();
-                mArchitecture.Init();
-
-                OnRegisterPatch?.Invoke(mArchitecture);
-
-                foreach (var model in mArchitecture._container.GetInstancesByType<IModel>().Where(m => !m.Initialized))
-                {
-                    model.Init();
-                    model.Initialized = true;
-                }
-
-                foreach (var system in mArchitecture._container.GetInstancesByType<ISystem>()
-                             .Where(m => !m.Initialized))
-                {
-                    system.Init();
-                    system.Initialized = true;
-                }
-
-                mArchitecture.mInited = true;
+                OnInitArchitecture();
             }
+        }
+        static void OnInitArchitecture()
+        {
+            mArchitecture.Init();
+            OnRegisterPatch?.Invoke(mArchitecture);
+
+            foreach (var model in mArchitecture._container.GetInstancesByType<IModel>().Where(m => !m.Initialized))
+            {
+                model.Init();
+                model.Initialized = true;
+            }
+
+            foreach (var system in mArchitecture._container.GetInstancesByType<ISystem>()
+                         .Where(m => !m.Initialized))
+            {
+                system.Init();
+                system.Initialized = true;
+            }
+
+            mArchitecture.mInited = true;
         }
 
         protected abstract void Init();

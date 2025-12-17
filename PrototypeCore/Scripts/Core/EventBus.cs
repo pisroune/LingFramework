@@ -24,7 +24,6 @@ namespace Prototype
             public readonly List<Action<T>> Listeners = new List<Action<T>>(8); // ƒ¨»œ»›¡ø8£¨ºı…Ÿ¿©»›
         }
 
-
         private static readonly Dictionary<Type, IEventContainer> _beforeEvents = new Dictionary<Type, IEventContainer>();
         private static readonly Dictionary<Type, IEventContainer> _defaultevents = new Dictionary<Type, IEventContainer>();
         private static readonly Dictionary<Type, IEventContainer> _lateEvents = new Dictionary<Type, IEventContainer>();

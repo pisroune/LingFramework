@@ -7,6 +7,8 @@
  ****************************************************************************/
 
 #if UNITY_EDITOR
+using UnityEngine;
+
 namespace QFramework
 {
     internal class PackageKit : Architecture<PackageKit>
