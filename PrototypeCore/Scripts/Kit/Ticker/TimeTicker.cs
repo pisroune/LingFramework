@@ -23,7 +23,7 @@ namespace QFramework
             float currentDeltaTime = TickTimes * _randomTime;
             if (_deltaTime >= currentDeltaTime)
             {
-                _deltaTime -= currentDeltaTime;
+                _deltaTime = 0;
                 OnTick(currentDeltaTime);
                 _deltaTime = 0;
                 _randomTime = Random.Range(0.9f, 1.1f);
