@@ -54,5 +54,22 @@ namespace QFramework
             }
             return pairs.GetRandom();
         }
+
+
+        #if UNITY_EDITOR
+        // v1 No.5
+        [MethodAPI]
+        [APIDescriptionCN("¿ËÂ¡List")]
+        [APIDescriptionEN("¿ËÂ¡List")]
+        [APIExampleCode(@"aList.Copy();")]
+#endif
+        public static List<T> Copy<T>(this List<T> aList)
+        {
+            List<T> tList = new List<T>();
+            int tCount = aList.Count;
+            for (int i = 0; i < tCount; ++i)
+                tList.Add(aList[i]);
+            return tList;
+        }
     }
 }
