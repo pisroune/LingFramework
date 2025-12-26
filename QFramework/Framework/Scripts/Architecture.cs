@@ -87,6 +87,7 @@ namespace QFramework
             mArchitecture = new T();
             if (!mArchitecture.InitAutomatic)
             {
+                mArchitecture = null;
                 throw new Exception($"尚未构造架构:{typeof(T)}，该架构重写了InitAutomatic并设为了false，请检查！");
             }
             OnInitArchitecture();

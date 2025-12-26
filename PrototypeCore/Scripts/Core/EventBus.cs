@@ -1,3 +1,5 @@
+using MoonSharp.VsCodeDebugger.SDK;
+using QFramework;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -45,10 +47,9 @@ namespace Prototype
         /// <summary>
         /// ¶©ÔÄÊÂ¼þ
         /// </summary>
-        public static void Register<T>(Action<T> listener, EventPriority priority = EventPriority.Default) where T : struct
+        public static IUnRegister Register<T>(Action<T> listener, EventPriority priority = EventPriority.Default) where T : struct
         {
             var type = typeof(T);
-
             var eventDict = GetDictionary(priority);
             if (!eventDict.TryGetValue(type, out var container))
             {
@@ -61,6 +62,8 @@ namespace Prototype
             {
                 specificContainer.Listeners.Add(listener);
             }
+
+            return new CustomUnRegister(() => { Unregister(listener, priority); });
         }
 
         /// <summary>
@@ -68,6 +71,7 @@ namespace Prototype
         /// </summary>
         public static void Unregister<T>(Action<T> listener, EventPriority priority = EventPriority.Default) where T : struct
         {
+            Debug.LogError("Unregister");
             var type = typeof(T);
             var eventDict = GetDictionary(priority);
             if (eventDict.TryGetValue(type, out var container))
