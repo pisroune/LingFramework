@@ -1,7 +1,7 @@
 using Prototype;
 using UnityEngine;
 
-namespace Prototype
+namespace Prototype.Demo.PoolablePrefab
 {
     public class PoolTestScript : MonoBehaviour, IPoolablePrefab
     {

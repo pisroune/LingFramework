@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PoolablePrefab
+namespace Prototype.Demo.PoolablePrefab
 {
     public class DemoRoot : MonoBehaviour
     {
