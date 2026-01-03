@@ -71,7 +71,6 @@ namespace Prototype
         /// </summary>
         public static void Unregister<T>(Action<T> listener, EventPriority priority = EventPriority.Default) where T : struct
         {
-            Debug.LogError("Unregister");
             var type = typeof(T);
             var eventDict = GetDictionary(priority);
             if (eventDict.TryGetValue(type, out var container))
