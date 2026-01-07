@@ -5,6 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+//如果没有Newtonsoft.Json命名空间，需要在PackageManager中add package by name - com.unity.nuget.newtonsoft-json
+
 
 namespace Prototype
 {

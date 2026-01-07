@@ -1,4 +1,3 @@
-using Game_ProjectReignite;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
