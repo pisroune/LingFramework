@@ -10,7 +10,7 @@ namespace Prototype
     public class UIFunction : MonoBehaviour
     {
         public static Canvas Canvas;
-
+        public static UIFunction Instance;
         #region RayHit
         public enum PointerIndicatorMode
         {
