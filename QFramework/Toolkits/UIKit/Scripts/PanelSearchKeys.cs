@@ -27,7 +27,7 @@ using QFramework;
 using System;
 using UnityEngine;
 
-namespace QFrameworkUI
+namespace QFramework
 {
     public class PanelSearchKeys : IPoolType, IPoolable
     {

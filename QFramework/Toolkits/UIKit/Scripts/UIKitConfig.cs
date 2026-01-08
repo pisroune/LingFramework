@@ -30,7 +30,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace QFrameworkUI
+namespace QFramework
 {
     public class UIKitConfig
     {

@@ -27,7 +27,7 @@ using QFramework;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace QFrameworkUI
+namespace QFramework
 {
     [MonoSingletonPath("UIRoot")]
     public class UIRoot : MonoBehaviour,ISingleton

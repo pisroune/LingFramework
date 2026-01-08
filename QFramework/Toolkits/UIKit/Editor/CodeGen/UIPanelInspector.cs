@@ -17,7 +17,7 @@ using UnityEditor.Experimental.SceneManagement;
 
 using UnityEngine;
 
-namespace QFrameworkUI
+namespace QFramework
 {
     [CustomEditor(typeof(UIPanel), true)]
     public class UIPanelInspector : Editor

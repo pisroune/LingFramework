@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace QFrameworkUI
+namespace QFramework
 {
     public class ResKitUIPanelTester : MonoBehaviour
     {

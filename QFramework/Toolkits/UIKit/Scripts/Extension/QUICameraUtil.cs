@@ -25,7 +25,7 @@
 
 using UnityEngine;
 
-namespace QFrameworkUI
+namespace QFramework
 {
 	public static class QUICameraUtil 
 	{

@@ -26,7 +26,7 @@
 using QFramework;
 using System;
 
-namespace QFrameworkUI
+namespace QFramework
 {
     public class PanelInfo : IPoolType, IPoolable
     {

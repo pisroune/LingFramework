@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace QFrameworkUI
+namespace QFramework
 {
     public class UIDefaultPanel : UIPanel
     {

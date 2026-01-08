@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 
-namespace QFrameworkUI
+namespace QFramework
 {
     using QFramework;
     using System.Collections;

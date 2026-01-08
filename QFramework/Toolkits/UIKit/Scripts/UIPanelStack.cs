@@ -1,7 +1,7 @@
 using QFramework;
 using System.Collections.Generic;
 
-namespace QFrameworkUI
+namespace QFramework
 {
     /// <summary>
     /// UI 界面的堆栈

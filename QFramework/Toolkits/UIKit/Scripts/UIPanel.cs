@@ -6,7 +6,7 @@
  * https://gitee.com/liangxiegame/QFramework
  ****************************************************************************/
 
-namespace QFrameworkUI
+namespace QFramework
 {
 	using UnityEngine;
 

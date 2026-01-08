@@ -2,7 +2,7 @@
 using System;
 using UnityEngine;
 
-namespace QFrameworkUI
+namespace QFramework
 {
     public class UIKitWithResKitInit
     {

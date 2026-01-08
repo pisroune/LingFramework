@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  ****************************************************************************/
 
-namespace QFrameworkUI
+namespace QFramework
 {
     using UnityEngine;
     
