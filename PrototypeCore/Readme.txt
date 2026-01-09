@@ -1,4 +1,4 @@
-Plugins、PrototypeCore、QFramework三个文件夹是原型项目基础组成部分，可以将这三个文件夹上传至Github上的LingPrototpye项目，也可以从Github上下载LingPrototpye项目并替换这三个文件夹。
+PrototypeCore、QFramework二个文件夹是原型项目基础组成部分，可以将这三个文件夹上传至Github上的LingPrototpye项目，也可以从Github上下载LingPrototpye项目并替换这三个文件夹。
 
 依赖UnityRegistry：
 Mathematics
