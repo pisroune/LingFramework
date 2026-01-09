@@ -31,13 +31,15 @@ namespace QFramework
         {
             var type = typeof(T);
             if (AssetBundlePathHelper.SimulationMode)
-            {  
-                string[] assetPaths = AssetDatabase.GetAssetPathsFromAssetBundle(bundleName);
+            {
                 List<T> tList = new List<T>();
+#if UNITY_EDITOR
+                string[] assetPaths = AssetDatabase.GetAssetPathsFromAssetBundle(bundleName);
                 foreach (var path in assetPaths)
                 {
                     tList.Add(AssetBundlePathHelper.LoadAssetAtPath<T>(path));
                 }
+#endif
                 return tList.ToArray();
             } 
             else
