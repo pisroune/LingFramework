@@ -25,6 +25,21 @@ namespace QFramework
             GameObject.Destroy(ExternalGameObject);
         }
     }
+    public interface IWithLoader
+    {
+        ResLoader Loader { get; set; }
+
+        sealed void AllocateLoader()
+        {
+            Loader = ResLoader.Allocate();
+        }
+        sealed void RemoveLoader()
+        {
+            Loader.Recycle2Cache(); 
+            Loader = null;
+        }
+    }
+
     public interface IUpdate
     {
         void Update();
@@ -69,6 +84,7 @@ namespace QFramework
         private HashSet<IUpdate> _updates = new HashSet<IUpdate>();
         private HashSet<IFixedUpdate> _fixedUpdates = new HashSet<IFixedUpdate>();
         private HashSet<ILateUpdate> _lateUpdates = new HashSet<ILateUpdate>();
+        private HashSet<IWithLoader> _withLoader = new HashSet<IWithLoader>();
         protected HashSet<ILingArchitecture> CitationArchitectures = new HashSet<ILingArchitecture>();   //引用架构，获取模块时，如果自身未找到，会尝试从引用架构中查找
         protected override bool InitAutomatic => false;
 
@@ -79,6 +95,10 @@ namespace QFramework
             foreach (var item in _withGameObject)
             {
                 item.InstantiateDefaultGameObject();
+            }
+            foreach (var item in _withLoader)
+            {
+                item.AllocateLoader();
             }
             foreach (var item in _lateActive)
             {
@@ -96,6 +116,10 @@ namespace QFramework
             foreach (var withGameObject in _withGameObject)
             {
                 withGameObject.DestroyDefaultGameObject();
+            }
+            foreach (var item in _withLoader)
+            {
+                item.RemoveLoader();
             }
             ActionKit.OnUpdate.UnRegister(_instance.Update);
             ActionKit.OnFixedUpdate.UnRegister(_instance.FixedUpdate);
