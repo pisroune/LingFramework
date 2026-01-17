@@ -155,6 +155,15 @@ namespace QFramework
                     withGameObject.InstantiateDefaultGameObject();
                 }
             }
+            if (component is IWithLoader)
+            {
+                var withLoader = (IWithLoader)component;
+                _withLoader.Add(withLoader);
+                if (component.Initialized)
+                {
+                    withLoader.AllocateLoader();
+                }
+            }
             if (component is IUpdate)
             {
                 _updates.Add(component as IUpdate);
