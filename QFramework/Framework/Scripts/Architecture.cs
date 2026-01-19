@@ -829,7 +829,9 @@ namespace QFramework
 
     public class EasyEvent : IEasyEvent
     {
-        private Action mOnEvent = () => { };
+        private Action mOnEvent;
+
+        public bool IsNull => mOnEvent == null;
 
         public IUnRegister Register(Action onEvent)
         {
@@ -850,7 +852,9 @@ namespace QFramework
 
     public class EasyEvent<T> : IEasyEvent
     {
-        private Action<T> mOnEvent = e => { };
+        private Action<T> mOnEvent;
+
+        public bool IsNull => mOnEvent == null;
 
         public IUnRegister Register(Action<T> onEvent)
         {
@@ -872,7 +876,9 @@ namespace QFramework
 
     public class EasyEvent<T, K> : IEasyEvent
     {
-        private Action<T, K> mOnEvent = (t, k) => { };
+        private Action<T, K> mOnEvent;
+
+        public bool IsNull => mOnEvent == null;
 
         public IUnRegister Register(Action<T, K> onEvent)
         {
@@ -893,7 +899,9 @@ namespace QFramework
 
     public class EasyEvent<T, K, S> : IEasyEvent
     {
-        private Action<T, K, S> mOnEvent = (t, k, s) => { };
+        private Action<T, K, S> mOnEvent;
+
+        public bool IsNull => mOnEvent == null;
 
         public IUnRegister Register(Action<T, K, S> onEvent)
         {
