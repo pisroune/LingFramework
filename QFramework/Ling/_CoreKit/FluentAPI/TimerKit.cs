@@ -13,7 +13,6 @@ namespace QFramework
     {
         static TimerKit()
         {
-            Debug.LogError("ππ‘Ï£∫TimerKit");
             ActionKit.OnUpdate.Register(Update);
         }
 
