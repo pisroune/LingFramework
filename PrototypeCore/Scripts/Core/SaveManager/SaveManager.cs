@@ -1,181 +1,283 @@
 using Newtonsoft.Json;
-using Prototype.Loader;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-//如果没有Newtonsoft.Json命名空间，需要在PackageManager中add package by name - com.unity.nuget.newtonsoft-json
-
 
 namespace Prototype
 {
+    /// <summary>
+    /// 文件夹隔离型存档管理器
+    /// 核心逻辑：所有存取操作都被强制限定在 Application.persistentDataPath/SaveSlots/Slot_N/ 目录下。
+    /// </summary>
     public static class SaveManager
     {
+        // --- 1. 配置与路径常量 ---
         public static int CurrentSlotID { get; private set; } = 0;
-
-        // 缓存 JsonSerializerSettings，避免每次调用都重新创建
-        private static JsonSerializerSettings _jsonSettings;
+        private const string ROOT_FOLDER = "SaveSlots"; // 存档总根目录名称
+        private static readonly JsonSerializerSettings _jsonSettings;
 
         static SaveManager()
         {
-            InitializeSettings();
-        }
-
-        private static void InitializeSettings()
-        {
             _jsonSettings = new JsonSerializerSettings
             {
-                // 格式化输出 (Pretty Print)，方便调试时阅读 Json 文件
                 Formatting = Formatting.Indented,
-
-                // 【关键】自动处理多态类型
-                // 只有当申明类型与实际类型不一致时（例如 List<BaseClass> 存了 SubClass），才会写入 $type
                 TypeNameHandling = TypeNameHandling.Auto,
-
-                // 忽略循环引用，防止对象互相引用导致堆栈溢出
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-
-                // 处理空值
                 NullValueHandling = NullValueHandling.Ignore
             };
         }
 
-        public static string GetSavePath(string baseKey)
-        {
-            return Path.Combine(Application.persistentDataPath, GetFullFileName(baseKey));
-        }
-
-        public static string GetFullFileName(string baseKey)
-        {
-            return GetPrefixedKey(baseKey) + ".json";
-        }
-
-        public static string GetSearchPattern()
-        {
-#if UNITY_EDITOR
-            return $"Slot{CurrentSlotID}_*.json";
-#else
-            return $"SaveFile_*.json";
-#endif
-        }
-        public static string GetPrefixedKey(string baseKey)
-        {
-#if UNITY_EDITOR
-            return $"EditorSave{CurrentSlotID}_{baseKey}";
-#else
-            return $"SaveFile_{baseKey}";
-#endif
-        }
+        #region 槽位管理
 
         public static void SwitchToSlot(int slotID)
         {
-            if (slotID <= 0)
+            if (slotID < 0)
             {
-                Debug.LogError("槽位ID必须大于0！");
+                Debug.LogError("[SaveManager] 槽位ID不能小于0！");
                 return;
             }
 
             CurrentSlotID = slotID;
-            Debug.LogWarning($"[开发功能] 已切换到存档槽位: {CurrentSlotID}。请手动重置相关模块以加载新数据。");
+            Debug.Log($"[SaveManager] 已切换至目录存档槽位: {GetSlotRelativePath()}");
         }
 
         /// <summary>
-        /// 保存数据到文件
+        /// 获取当前槽位的相对根路径 (例如 "SaveSlots/Slot_0")
         /// </summary>
-        /// <typeparam name="T">数据类型</typeparam>
-        /// <param name="data">数据对象</param>
-        /// <param name="fileName">文件名 (例如 "save.json")</param>
-        public static void Save<T>(string key, T data)
+        private static string GetSlotRelativePath()
         {
+            return Path.Combine(ROOT_FOLDER, $"Slot_{CurrentSlotID}");
+        }
+
+        /// <summary>
+        /// 获取当前槽位的绝对根路径
+        /// </summary>
+        private static string GetSlotAbsolutePath()
+        {
+            return Path.Combine(Application.persistentDataPath, GetSlotRelativePath());
+        }
+
+        #endregion
+
+        #region 路径安全核心 (强制锁定在槽位文件夹内)
+
+        /// <summary>
+        /// 输入一个槽位内的相对路径，返回一个被锁定在当前槽位文件夹内的绝对路径。
+        /// </summary>
+        public static string GetValidatedFullPath(string pathInSlot)
+        {
+            if (string.IsNullOrEmpty(pathInSlot)) return null;
+
+            // 获取当前槽位的绝对基准路径
+            string slotRoot = Path.GetFullPath(GetSlotAbsolutePath());
+
+            // 组合目标路径
+            string combinedPath = Path.Combine(slotRoot, pathInSlot);
+
             try
             {
-                // 1. 将对象转换为 Json 字符串
-                string json = JsonConvert.SerializeObject(data, _jsonSettings);
-                string filePath = GetSavePath(key);
+                string normalizedPath = Path.GetFullPath(combinedPath);
 
-                // 2. 写入文件
-                File.WriteAllText(filePath, json);
+                // 安全校验：最终路径必须以当前槽位的根路径开头
+                // 这防止了通过 "../" 逃离当前 Slot 文件夹的操作
+                if (!normalizedPath.StartsWith(slotRoot, StringComparison.OrdinalIgnoreCase))
+                {
+                    Debug.LogError($"[SaveManager] 越权访问被拦截！尝试逃离槽位目录: {pathInSlot}");
+                    return null;
+                }
 
-                Debug.Log($"[SaveManager] 存档成功: {filePath}");
+                return normalizedPath;
             }
             catch (Exception e)
             {
-                Debug.LogError($"[SaveManager] 存档失败: {e.Message}");
+                Debug.LogError($"[SaveManager] 路径解析错误: {e.Message}");
+                return null;
             }
+        }
+
+        #endregion
+
+        #region 统一存取 API
+
+        /// <summary>
+        /// 保存数据到当前槽位。
+        /// pathInSlot 可以是文件名 "player.json"，也可以是子路径 "Settings/audio.json"
+        /// </summary>
+        public static void Save<T>(string pathInSlot, T data)
+        {
+            // 自动补全 .json 后缀（如果用户没写的话）
+            if (!pathInSlot.EndsWith(".json")) pathInSlot += ".json";
+
+            string fullPath = GetValidatedFullPath(pathInSlot);
+            AtomicWrite(fullPath, data);
         }
 
         /// <summary>
-        /// 从文件加载数据
+        /// 从当前槽位加载数据
         /// </summary>
-        /// <typeparam name="T">数据类型</typeparam>
-        /// <param name="fileName">文件名</param>
-        /// <returns>读取的对象，如果文件不存在则返回默认值或 null</returns>
-        public static T Load<T>(string key) //where T : struct
+        public static bool TryLoad<T>(string pathInSlot, out T value)
         {
-            TryGet<T>(key, out T value);
-            if (value == null)
-            {
-                Debug.LogError($"加载错误，key为 {key}");
-            }
+            if (!pathInSlot.EndsWith(".json")) pathInSlot += ".json";
 
-            return value;
+            string fullPath = GetValidatedFullPath(pathInSlot);
+            return TryRead(fullPath, out value);
         }
 
-        public static bool TryGet<T>(string baseKey, out T value) //where T : class
+        /// <summary>
+        /// 检查当前槽位内是否存在某文件
+        /// </summary>
+        public static bool Exists(string pathInSlot)
         {
-            value = default(T);
-            string jsonStr = null;
-            string slotPrefixedKey = GetPrefixedKey(baseKey);
-            string filePath = GetSavePath(baseKey);
+            if (!pathInSlot.EndsWith(".json")) pathInSlot += ".json";
+            string fullPath = GetValidatedFullPath(pathInSlot);
+            return !string.IsNullOrEmpty(fullPath) && File.Exists(fullPath);
+        }
 
-            if (File.Exists(filePath))
-            {
-                try
-                {
-                    jsonStr = File.ReadAllText(filePath);
-                }
-                catch (Exception e) { Debug.LogError($"[JsonTool] 读取JSON文件失败，Key: '{baseKey}': {e.Message}"); }
-            }
+        /// <summary>
+        /// 删除当前槽位内的特定文件
+        /// </summary>
+        public static void Delete(string pathInSlot)
+        {
+            if (!pathInSlot.EndsWith(".json")) pathInSlot += ".json";
+            string fullPath = GetValidatedFullPath(pathInSlot);
+            SafeDelete(fullPath);
+        }
 
+        #endregion
 
-            if (string.IsNullOrEmpty(jsonStr)) return false;
+        #region 原子 IO 底层实现
+
+        private static void AtomicWrite<T>(string fullPath, T data)
+        {
+            if (string.IsNullOrEmpty(fullPath)) return;
+
             try
             {
-                value = JsonConvert.DeserializeObject<T>(jsonStr, _jsonSettings);
+                string json = JsonConvert.SerializeObject(data, _jsonSettings);
+                string tempPath = fullPath + ".tmp";
+                string backupPath = fullPath + ".bak";
+
+                string dir = Path.GetDirectoryName(fullPath);
+                if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+
+                File.WriteAllText(tempPath, json);
+
+                if (File.Exists(fullPath))
+                {
+                    File.Replace(tempPath, fullPath, backupPath);
+                    if (File.Exists(backupPath)) File.Delete(backupPath);
+                }
+                else
+                {
+                    File.Move(tempPath, fullPath);
+                }
+
+                Debug.Log($"[SaveManager] 写入成功: {fullPath}");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[SaveManager] 写入异常: {e.Message}");
+            }
+        }
+
+        private static bool TryRead<T>(string fullPath, out T value)
+        {
+            value = default;
+            if (string.IsNullOrEmpty(fullPath) || !File.Exists(fullPath)) return false;
+
+            try
+            {
+                string json = File.ReadAllText(fullPath);
+                value = JsonConvert.DeserializeObject<T>(json, _jsonSettings);
                 return value != null;
             }
             catch (Exception e)
             {
-                Debug.LogError($"[JsonTool] 反序列化失败，Key: '{baseKey}'。错误: {e.Message}");
+                Debug.LogError($"[SaveManager] 读取反序列化失败: {e.Message}");
                 return false;
             }
         }
 
-        /// <summary>
-        /// 辅助工具：删除存档
-        /// </summary>
-        public static void DeleteSave(string fileName)
+        private static void SafeDelete(string fullPath)
         {
-            string path = GetSavePath(fileName);
-            if (File.Exists(path))
+            if (string.IsNullOrEmpty(fullPath)) return;
+            try
             {
-                File.Delete(path);
-                Debug.Log($"[SaveManager] 已删除存档: {fileName}");
+                if (File.Exists(fullPath)) File.Delete(fullPath);
+                if (File.Exists(fullPath + ".bak")) File.Delete(fullPath + ".bak");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[SaveManager] 删除失败: {e.Message}");
             }
         }
 
-        public static void DeleteAll()
+        #endregion
+
+        #region 槽位整体操作
+
+        /// <summary>
+        /// 删除整个当前槽位文件夹及其所有内容
+        /// </summary>
+        public static void DeleteCurrentSlotFolder()
         {
-            string savePath = Application.persistentDataPath;
-            if (Directory.Exists(savePath))
+            string slotPath = GetSlotAbsolutePath();
+            try
             {
-                foreach (var filePath in Directory.GetFiles(savePath, GetSearchPattern()))
+                if (Directory.Exists(slotPath))
                 {
-                    File.Delete(filePath);
-                    Debug.Log($"已删除: {Path.GetFileName(filePath)}");
+                    Directory.Delete(slotPath, true);
+                    Debug.Log($"[SaveManager] 已清空槽位目录: {slotPath}");
                 }
             }
+            catch (Exception e)
+            {
+                Debug.LogError($"[SaveManager] 删除槽位目录失败: {e.Message}");
+            }
         }
+
+        /// <summary>
+        /// 重命名或移动当前槽位内的文件/子目录
+        /// </summary>
+        public static bool MoveInSlot(string sourceInSlot, string destInSlot)
+        {
+            string src = GetValidatedFullPath(sourceInSlot);
+            string dst = GetValidatedFullPath(destInSlot);
+
+            if (src == null || dst == null || !File.Exists(src)) return false;
+
+            try
+            {
+                string destDir = Path.GetDirectoryName(dst);
+                if (!Directory.Exists(destDir)) Directory.CreateDirectory(destDir);
+
+                if (File.Exists(dst)) File.Delete(dst);
+                File.Move(src, dst);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[SaveManager] 槽位内移动失败: {e.Message}");
+                return false;
+            }
+        }
+
+        #endregion
+
+        #region 过时函数
+
+        public static bool TryGet<T>(string key, out T value)
+        {
+            Debug.LogError("已重命名，建议替换为TryLoad");
+            return TryLoad<T>(key, out value);
+        }
+
+        public static void DeleteSave(string key)
+        {
+            Debug.LogError("已重命名，建议替换为Delete");
+            Delete(key);
+        }
+
+        #endregion
     }
 }

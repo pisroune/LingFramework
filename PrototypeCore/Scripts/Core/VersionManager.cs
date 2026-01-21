@@ -19,8 +19,8 @@ namespace Prototype
         public static VersionStorage DesktopSave => _desktopSave;
         public static VersionStorage GameVersion => _gameVersion;
 
-        [RuntimeInitializeOnLoadMethod]
-        public static void StaticInit()
+        //[RuntimeInitializeOnLoadMethod]
+        static VersionManager()
         {
             _dataSO = Resources.Load<VersionDataSO>(DataSOPath);
             if (_dataSO == null)
