@@ -42,5 +42,11 @@ namespace QFramework
             slider.RemoveAllListeners();
             slider.AddListener(action);
         }
+
+        public static void OnlyListener(this Toggle.ToggleEvent toggle, UnityAction<bool> action)
+        {
+            toggle.RemoveAllListeners();
+            toggle.AddListener(action);
+        }
     }
 }
