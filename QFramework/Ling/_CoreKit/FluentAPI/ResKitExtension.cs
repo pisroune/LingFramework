@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
+using VInspector.Libs;
 using Object = UnityEngine.Object;
 
 namespace QFramework
@@ -37,7 +38,11 @@ namespace QFramework
                 string[] assetPaths = AssetDatabase.GetAssetPathsFromAssetBundle(bundleName);
                 foreach (var path in assetPaths)
                 {
-                    tList.Add(AssetBundlePathHelper.LoadAssetAtPath<T>(path));
+                    T asset = AssetBundlePathHelper.LoadAssetAtPath<T>(path);
+                    if (asset != null)
+                    {
+                        tList.Add(asset);
+                    }
                 }
 #endif
                 return tList.ToArray();

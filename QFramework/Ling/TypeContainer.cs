@@ -23,6 +23,8 @@ namespace QFramework
         bool Has<T>();
         bool Has(Type type);
         void Clear();
+
+        IEnumerable<TBase> GetAll();
     }
 
     /// <summary>
