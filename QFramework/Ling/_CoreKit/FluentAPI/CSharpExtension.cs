@@ -8,14 +8,13 @@ namespace QFramework
 {
 #if UNITY_EDITOR
     [ClassAPI("12.Ling", "CSharpExtensions", 0)]
-    [APIDescriptionCN("针对 System.Collections 提供的链式扩展，理论上任何集合都可以使用")]
-    [APIDescriptionEN("The chain extension provided by System.Collections can theoretically be used by any collection")]
+    [APIDescriptionCN("针对 C# 提供的扩展方法")]
+    [APIDescriptionEN("针对 C# 提供的扩展方法")]
 #endif
     public static class CSharpExtension
     {
 
 #if UNITY_EDITOR
-        // v1 No.5
         [MethodAPI]
         [APIDescriptionCN("返回List中的随机一项元素")]
         [APIDescriptionEN("返回List中的随机一项元素")]
@@ -27,7 +26,6 @@ namespace QFramework
         }
 
 #if UNITY_EDITOR
-        // v1 No.5
         [MethodAPI]
         [APIDescriptionCN("返回数组中的随机一项元素")]
         [APIDescriptionEN("返回数组中的随机一项元素")]
@@ -40,7 +38,6 @@ namespace QFramework
 
 
 #if UNITY_EDITOR
-        // v1 No.5
         [MethodAPI]
         [APIDescriptionCN("返回字典中的随机一项元素")]
         [APIDescriptionEN("返回字典中的随机一项元素")]
@@ -58,7 +55,6 @@ namespace QFramework
 
 
         #if UNITY_EDITOR
-        // v1 No.5
         [MethodAPI]
         [APIDescriptionCN("克隆List")]
         [APIDescriptionEN("克隆List")]
@@ -76,7 +72,6 @@ namespace QFramework
 
 
 #if UNITY_EDITOR
-        // v1 No.5
         [MethodAPI]
         [APIDescriptionCN("在列表中按某个键(selector)查找第一个匹配项，返回匹配到的元素")]
         [APIDescriptionEN("在列表中按某个键(selector)查找第一个匹配项，返回匹配到的元素")]
@@ -100,7 +95,6 @@ namespace QFramework
         }
 
 #if UNITY_EDITOR
-        // v1 No.5
         [MethodAPI]
         [APIDescriptionCN("在列表中按某个键(selector)查找第一个匹配项，并返回匹配到的元素索引")]
         [APIDescriptionEN("在列表中按某个键(selector)查找第一个匹配项，并返回匹配到的元素索引")]
@@ -117,7 +111,6 @@ namespace QFramework
         }
 
 #if UNITY_EDITOR
-        // v1 No.5
         [MethodAPI]
         [APIDescriptionCN("在列表中按某个键(selector)查找匹配项，返回是否存在")]
         [APIDescriptionEN("在列表中按某个键(selector)查找匹配项，返回是否存在")]
@@ -129,7 +122,6 @@ namespace QFramework
             return TryFindByKey(source, key, keySelector, out _, comparer);
         }
 #if UNITY_EDITOR
-        // v1 No.5
         [MethodAPI]
         [APIDescriptionCN("在列表中按某个键(selector)查找第一个匹配项，返回匹配到的所有元素")]
         [APIDescriptionEN("在列表中按某个键(selector)查找第一个匹配项，返回匹配到的所有元素")]
@@ -148,7 +140,6 @@ namespace QFramework
 
 
 #if UNITY_EDITOR
-        // v1 No.5
         [MethodAPI]
         [APIDescriptionCN("从列表中移除存在某个键(selector)的匹配项")]
         [APIDescriptionEN("从列表中移除存在某个键(selector)的匹配项")]
