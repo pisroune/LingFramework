@@ -7,7 +7,9 @@ using UnityEngine;
 namespace QFramework
 {
     /// <summary>
-    /// 打点计时器
+    /// 打点计时器类
+    /// 可以按固定时间间隔回调委托
+    /// 方便快速地申请或注销
     /// </summary>
     public static class TimerKit
     {
@@ -16,10 +18,15 @@ namespace QFramework
             ActionKit.OnUpdate.Register(Update);
         }
 
-
         static List<CyclicTimer> _removingTimers = new List<CyclicTimer>();
         static Dictionary<int, CyclicTimer> _cyclicTimers = new Dictionary<int, CyclicTimer>();
 
+        /// <summary>
+        /// 申请一个打点计时器
+        /// 按ratePerSec的频率回调委托
+        /// </summary>
+        /// <param name="ratePerSec">每秒次数</param>
+        /// <returns></returns>
         public static CyclicTimer RegisterBySecond(int ratePerSec, System.Action<float> onTick)
         {
             int ratePerMin = ratePerSec * 60;
@@ -36,6 +43,13 @@ namespace QFramework
                 return newTimer;
             }
         }
+
+        /// <summary>
+        /// 申请一个打点计时器
+        /// 按ratePerMin的频率回调委托
+        /// </summary>
+        /// <param name="ratePerMin">每分钟次数</param>
+        /// <returns></returns>
         public static CyclicTimer RegisterByMinute(int ratePerMin, System.Action<float> onTick)
         {
             if (_cyclicTimers.TryGetValue(ratePerMin, out var timer))
@@ -52,6 +66,9 @@ namespace QFramework
             }
         }
 
+        /// <summary>
+        /// 注销一个计时器委托
+        /// </summary>
         public static void UnregisterBySecond(int ratePerSec, System.Action<float> onTick, bool requireReceiver = true)
         {
             int ratePerMin = ratePerSec * 60;
@@ -64,6 +81,10 @@ namespace QFramework
                 Debug.LogError("没有找到对应的计时器，请检查");
             }
         }
+
+        /// <summary>
+        /// 注销一个计时器委托
+        /// </summary>
         public static void UnregisterByMinute(int ratePerMin, System.Action<float> onTick, bool requireReceiver = true)
         {
             if (_cyclicTimers.TryGetValue(ratePerMin, out var timer))
@@ -76,6 +97,9 @@ namespace QFramework
             }
         }
 
+        /// <summary>
+        /// 注销一个计时器委托
+        /// </summary>
         public static void Unregister(this CyclicTimer timer, System.Action<float> onTick)
         {
             timer.Unregister(onTick);

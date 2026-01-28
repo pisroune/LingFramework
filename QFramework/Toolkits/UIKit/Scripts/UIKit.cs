@@ -5,6 +5,7 @@
  * https://github.com/liangxiegame/QFramework
  * https://gitee.com/liangxiegame/QFramework
  ****************************************************************************/
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -273,6 +274,18 @@ UIKit.GetPanel(""UIHomePanel"");
             return retPanel;
         }
 
+        public static UIPanel GetPanel(Type type)
+        {
+            var panelSearchKeys = PanelSearchKeys.Allocate();
+            panelSearchKeys.PanelType = type;
+
+            var retPanel = UIManager.Instance.GetUI(panelSearchKeys);
+
+            panelSearchKeys.Recycle2Cache();
+
+            return retPanel;
+        }
+
         public static UIPanel OpenPanel(string panelName, UILevel level = UILevel.Common, string assetBundleName = null)
         {
             var panelSearchKeys = PanelSearchKeys.Allocate();
@@ -286,6 +299,46 @@ UIKit.GetPanel(""UIHomePanel"");
             panelSearchKeys.Recycle2Cache();
 
             return retPanel as UIPanel;
+        }
+
+        public static UIPanel OpenPanel(Type type, UILevel canvasLevel = UILevel.Common, IUIData uiData = null,
+         string assetBundleName = null,
+         string prefabName = null)
+        {
+            var panelSearchKeys = PanelSearchKeys.Allocate();
+
+            panelSearchKeys.OpenType = PanelOpenType.Single;
+            panelSearchKeys.Level = canvasLevel;
+            panelSearchKeys.PanelType = type;
+            panelSearchKeys.AssetBundleName = assetBundleName;
+            panelSearchKeys.GameObjName = prefabName;
+            panelSearchKeys.UIData = uiData;
+
+            UIPanel retPanel = UIManager.Instance.OpenUI(panelSearchKeys) as UIPanel;
+
+            panelSearchKeys.Recycle2Cache();
+
+            return retPanel;
+        }
+
+        public static UIPanel OpenPanel(Type type, IUIData uiData, PanelOpenType panelOpenType = PanelOpenType.Single,
+          string assetBundleName = null,
+          string prefabName = null)
+        {
+            var panelSearchKeys = PanelSearchKeys.Allocate();
+
+            panelSearchKeys.OpenType = panelOpenType;
+            panelSearchKeys.Level = UILevel.Common;
+            panelSearchKeys.PanelType = type;
+            panelSearchKeys.AssetBundleName = assetBundleName;
+            panelSearchKeys.GameObjName = prefabName;
+            panelSearchKeys.UIData = uiData;
+
+            UIPanel retPanel = UIManager.Instance.OpenUI(panelSearchKeys) as UIPanel;
+
+            panelSearchKeys.Recycle2Cache();
+
+            return retPanel;
         }
 
         public static void ClosePanel(string panelName)
@@ -310,11 +363,33 @@ UIKit.GetPanel(""UIHomePanel"");
             panelSearchKeys.Recycle2Cache();
         }
 
+        public static void ClosePanel(Type type)
+        {
+            var panelSearchKeys = PanelSearchKeys.Allocate();
+
+            panelSearchKeys.PanelType = type;
+
+            UIManager.Instance.CloseUI(panelSearchKeys);
+
+            panelSearchKeys.Recycle2Cache();
+        }
+
         public static void ShowPanel(string panelName)
         {
             var panelSearchKeys = PanelSearchKeys.Allocate();
 
             panelSearchKeys.GameObjName = panelName;
+
+            UIManager.Instance.ShowUI(panelSearchKeys);
+
+            panelSearchKeys.Recycle2Cache();
+        }
+
+        public static void ShowPanel(Type type)
+        {
+            var panelSearchKeys = PanelSearchKeys.Allocate();
+
+            panelSearchKeys.PanelType = type;
 
             UIManager.Instance.ShowUI(panelSearchKeys);
 
@@ -331,6 +406,17 @@ UIKit.GetPanel(""UIHomePanel"");
 
             panelSearchKeys.Recycle2Cache();
         }
+
+        public static void HidePanel(Type type)
+        {
+            var panelSearchKeys = PanelSearchKeys.Allocate();
+            panelSearchKeys.PanelType = type;
+
+            UIManager.Instance.HideUI(panelSearchKeys);
+
+            panelSearchKeys.Recycle2Cache();
+        }
+
 
         #endregion
 
