@@ -100,16 +100,20 @@ namespace QFramework
             {
                 item.AllocateLoader();
             }
-            foreach (var item in _lateActive)
-            {
-                item.LateInit();
-            }
             ActionKit.OnUpdate.Register(_instance.Update);
             ActionKit.OnFixedUpdate.Register(_instance.FixedUpdate);
             ActionKit.OnLateUpdate.Register(_instance.LateUpdate);
             Debug.Log("≥ı ºªØº‹ππ£∫" + this.GetType().Name);
         }
         protected abstract void OnInitalized();
+
+        protected override void LateInit()
+        {
+            foreach (var item in _lateActive)
+            {
+                item.LateInit();
+            }
+        }
 
         protected override void OnDeinit()
         {

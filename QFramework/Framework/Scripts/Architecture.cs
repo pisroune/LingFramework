@@ -117,11 +117,13 @@ namespace QFramework
                 system.Init();
                 system.Initialized = true;
             }
+            mArchitecture.LateInit();
 
             mArchitecture.mInited = true;
         }
 
         protected abstract void Init();
+        protected virtual void LateInit() { }
 
         public void Deinit()
         {
