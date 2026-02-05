@@ -548,5 +548,70 @@ namespace QFramework
         {
             return System.Convert.ToBoolean(n % 2);
         }
+
+        /// <summary>
+        /// 有符号投影长度
+        /// </summary>
+        public static float SignedProjectLengthOnLine(Vector3 a, Vector3 d)
+        {
+            // d 不能是零向量
+            float mag = d.magnitude;
+            if (mag < 1e-8f) return 0f;
+            return Vector3.Dot(a, d) / mag;
+        }
+
+        /// <summary>
+        /// 无符号投影长度
+        /// </summary>
+        public static float ProjectLengthOnLine(Vector3 a, Vector3 d)
+        {
+            return Mathf.Abs(SignedProjectLengthOnLine(a, d));
+        }
+
+        /// <summary>
+        /// 投影向量（落在直线方向上的向量）
+        /// </summary>
+        public static Vector3 ProjectVectorOnLine(Vector3 a, Vector3 d)
+        {
+            if (d.sqrMagnitude < 1e-12f) return Vector3.zero;
+            return Vector3.Project(a, d); // Unity 内置：a 在 d 上的投影向量
+        }
+
+        /// <summary>
+        /// 1) 向量 v 在“平面”上的投影向量（平面由法线 normal 定义，过原点）
+        /// 返回：v 去掉法线分量后的结果。
+        /// </summary>
+        public static Vector3 ProjectVectorOnPlane(Vector3 v, Vector3 planeNormal)
+        {
+            // planeNormal 不能为零向量
+            if (planeNormal.sqrMagnitude < 1e-12f) return v;
+
+            // Unity 内置：把 v 投影到法线为 planeNormal 的平面上
+            return Vector3.ProjectOnPlane(v, planeNormal);
+        }
+
+        /// <summary>
+        /// 2) 向量 v 在“直线”上的投影向量（直线由两点 p0、p1 确定）
+        /// 返回：投影向量（方向沿 p0->p1）
+        /// </summary>
+        public static Vector3 ProjectVectorOnLine(Vector3 v, Vector3 p0, Vector3 p1)
+        {
+            Vector3 d = p1 - p0;                 // 直线方向
+            if (d.sqrMagnitude < 1e-12f) return Vector3.zero;
+
+            return Vector3.Project(v, d);        // v 在 d 上的投影向量
+        }
+
+        /// <summary>
+        /// （可选）向量 v 在直线上的有符号投影长度（标量），直线由 p0、p1 确定
+        /// </summary>
+        public static float ProjectVectorLengthOnLineSigned(Vector3 v, Vector3 p0, Vector3 p1)
+        {
+            Vector3 d = p1 - p0;
+            float mag = d.magnitude;
+            if (mag < 1e-8f) return 0f;
+
+            return Vector3.Dot(v, d) / mag;      // v · d_hat
+        }
     }
 }
