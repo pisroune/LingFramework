@@ -14,7 +14,7 @@ namespace Prototype
             EditorGUI.BeginProperty(position, label, property);
 
             // 获取当前选中的选项
-            SerializedProperty selectedOptionProperty = property.FindPropertyRelative("SelectedOption");
+            SerializedProperty selectedOptionProperty = property.FindPropertyRelative("Selected");
 
             // 确保当前选项在 options 中有效
             int selectedIndex = System.Array.IndexOf(options, selectedOptionProperty.stringValue);
