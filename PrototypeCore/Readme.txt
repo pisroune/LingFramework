@@ -2,3 +2,4 @@ PrototypeCore、QFramework二个文件夹是原型项目基础组成部分，可
 
 依赖UnityRegistry：
 Mathematics
+com.unity.nuget.newtonsoft-json
