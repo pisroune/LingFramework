@@ -613,5 +613,157 @@ namespace QFramework
 
             return Vector3.Dot(v, d) / mag;      // v · d_hat
         }
+
+
+        #region Min & Max Selector
+
+        /// <summary>
+        /// 根据筛选器排序并选择一个数值最大的元素
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="items">元素集合</param>
+        /// <param name="valueSelector">筛选器</param>
+        /// <returns></returns>
+        public static T GetMax<T>(IEnumerable<T> items, Func<T, int> valueSelector)
+        {
+            return GetMax(items, valueSelector, out _);
+        }
+
+        /// <summary>
+        /// 根据筛选器排序并选择一个数值最大的元素
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="items">元素集合</param>
+        /// <param name="valueSelector">筛选器</param>
+        /// <param name="value">最大元素数值</param>
+        /// <returns></returns>
+        public static T GetMax<T>(IEnumerable<T> items, Func<T, int> valueSelector, out int value)
+        {
+            value = -int.MaxValue;
+            T key = default;
+            foreach (var item in items)
+            {
+                int tempValue = valueSelector(item);
+                if (tempValue > value)
+                {
+                    value = tempValue;
+                    key = item;
+                }
+            }
+
+            return key;
+        }
+
+        /// <summary>
+        /// 根据筛选器排序并选择一个数值最大的元素
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="items">元素集合</param>
+        /// <param name="valueSelector">筛选器</param>
+        /// <returns></returns>
+        public static T GetMaxf<T>(IEnumerable<T> items, Func<T, float> valueSelector)
+        {
+            return GetMaxf(items, valueSelector, out _);
+        }
+
+        /// <summary>
+        /// 根据筛选器排序并选择一个数值最大的元素
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="items">元素集合</param>
+        /// <param name="valueSelector">筛选器</param>
+        /// <param name="value">最大元素数值</param>
+        /// <returns></returns>
+        public static T GetMaxf<T>(IEnumerable<T> items, Func<T, float> valueSelector, out float value)
+        {
+            value = -float.MaxValue;
+            T key = default;
+            foreach (var item in items)
+            {
+                float tempValue = valueSelector(item);
+                if (tempValue > value)
+                {
+                    value = tempValue;
+                    key = item;
+                }
+            }
+            return key;
+        }
+
+        /// <summary>
+        /// 根据筛选器排序并选择一个数值最小的元素
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="items">元素集合</param>
+        /// <param name="valueSelector">筛选器</param>
+        /// <returns></returns>
+        public static T GetMin<T>(IEnumerable<T> items, Func<T, int> valueSelector)
+        {
+            return GetMin(items, valueSelector, out _);
+        }
+
+        /// <summary>
+        /// 根据筛选器排序并选择一个数值最小的元素
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="items">元素集合</param>
+        /// <param name="valueSelector">筛选器</param>
+        /// <param name="value">最小元素数值</param>
+        /// <returns></returns>
+        public static T GetMin<T>(IEnumerable<T> items, Func<T, int> valueSelector, out int value)
+        {
+            value = int.MaxValue;
+            T key = default;
+            foreach (var item in items)
+            {
+                int tempValue = valueSelector(item);
+                if (tempValue < value)
+                {
+                    value = tempValue;
+                    key = item;
+                }
+            }
+
+            return key;
+        }
+
+
+        /// <summary>
+        /// 根据筛选器排序并选择一个数值最小的元素
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="items">元素集合</param>
+        /// <param name="valueSelector">筛选器</param>
+        /// <returns></returns>
+        public static T GetMinf<T>(IEnumerable<T> items, Func<T, float> valueSelector)
+        {
+            return GetMinf(items, valueSelector, out _);
+        }
+
+        /// <summary>
+        /// 根据筛选器排序并选择一个数值最小的元素
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="items">元素集合</param>
+        /// <param name="valueSelector">筛选器</param>
+        /// <param name="value">最小元素数值</param>
+        /// <returns></returns>
+        public static T GetMinf<T>(IEnumerable<T> items, Func<T, float> valueSelector, out float value)
+        {
+            value = float.MaxValue;
+            T key = default;
+            foreach (var item in items)
+            {
+                float tempValue = valueSelector(item);
+                if (tempValue < value)
+                {
+                    value = tempValue;
+                    key = item;
+                }
+            }
+            return key;
+        }
+
+        #endregion
     }
 }
