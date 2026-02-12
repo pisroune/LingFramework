@@ -90,5 +90,40 @@ namespace QFramework
 
             return furthest;
         }
+
+        public static GameObject NewGameObject(Vector3 position, Quaternion rotation, Transform parent, string name = "new GameObject", Space space = Space.World)
+        {
+            var go = new GameObject(name);
+            go.transform.parent = parent;
+
+            if (space == Space.World)
+            {
+                go.transform.position = position;
+                go.transform.rotation = rotation;
+            }
+            else
+            {
+                go.transform.localPosition = position;
+                go.transform.localRotation = rotation;
+            }
+            return go;
+        }
+        public static T NewGameObjectWithComponnet<T>(Vector3 position, Quaternion rotation, Transform parent, string name = "new GameObject", Space space = Space.World) where T : Component
+        {
+            var go = new GameObject(name);
+            go.transform.parent = parent;
+            T component = go.AddComponent<T>();
+            if (space == Space.World)
+            {
+                go.transform.position = position;
+                go.transform.rotation = rotation;
+            }
+            else
+            {
+                go.transform.localPosition = position;
+                go.transform.localRotation = rotation;
+            }
+            return component;
+        }
     }
 }
