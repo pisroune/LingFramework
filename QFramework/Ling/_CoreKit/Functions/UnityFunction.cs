@@ -108,7 +108,13 @@ namespace QFramework
             }
             return go;
         }
-        public static T NewGameObjectWithComponnet<T>(Vector3 position, Quaternion rotation, Transform parent, string name = "new GameObject", Space space = Space.World) where T : Component
+        public static T NewGameObjectWithComponent<T>(string name = "new GameObject") where T : Component
+        {
+            var go = new GameObject(name);
+            T component = go.AddComponent<T>();
+            return component;
+        }
+        public static T NewGameObjectWithComponent<T>(Vector3 position, Quaternion rotation, Transform parent, string name = "new GameObject", Space space = Space.World) where T : Component
         {
             var go = new GameObject(name);
             go.transform.parent = parent;
