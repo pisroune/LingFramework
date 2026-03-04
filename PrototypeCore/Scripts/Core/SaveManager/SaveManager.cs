@@ -143,6 +143,11 @@ namespace Prototype
             SafeDelete(fullPath);
         }
 
+        public static void DeleteAllFile()
+        {
+            if (Directory.Exists(GetSlotAbsolutePath())) Directory.Delete(GetSlotAbsolutePath(), true);
+        }
+
         #endregion
 
         #region 原子 IO 底层实现

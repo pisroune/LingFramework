@@ -1,16 +1,17 @@
 using Prototype;
+using QFramework;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Prototype
 {
-    public class UIFunction : MonoBehaviour
+    public class UIFunction : MonoSingleton<UIFunction>
     {
         public static Canvas Canvas;
-        public static UIFunction Instance;
         #region RayHit
         public enum PointerIndicatorMode
         {
@@ -18,9 +19,58 @@ namespace Prototype
             Transform,
             None
         }
-        public static PointerIndicatorMode PointerIndicatorM;
+        public static PointerIndicatorMode PointerIndicatorM = PointerIndicatorMode.Mouse;
         public static Transform IndicatorTrans;
         public static IPointer Pointer;
+
+        [RuntimeInitializeOnLoadMethod]
+        static void Init()
+        {
+            Canvas = UIRoot.Instance.Canvas;
+            ActionKit.OnUpdate.Register(OnUpdate);
+        }
+
+        static void OnUpdate()
+        {
+            Debug.LogError(PointerIndicatorM);
+            bool doRayCast = PointerIndicatorM != PointerIndicatorMode.None;
+            if (doRayCast)
+            {
+                Vector2 position = PointerIndicatorM == PointerIndicatorMode.Mouse
+                    ? Input.mousePosition
+                    : IndicatorTrans.position;
+
+                if (TryGetPointer(position, out IPointer pointer))
+                {
+                    if (Pointer != null)
+                    {
+                        if (Pointer == pointer)
+                        {
+                            Pointer.PointerStay();
+                        }
+                        else
+                        {
+                            Pointer.PointerExit();
+                            Pointer = pointer;
+                            Pointer.PointerEnter();
+                        }
+                    }
+                    else
+                    {
+                        Pointer = pointer;
+                        Pointer.PointerEnter();
+                    }
+                }
+                else
+                {
+                    if (Pointer != null)
+                    {
+                        Pointer.PointerExit();
+                        Pointer = null;
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// 判断屏幕射线是否命中UI物体
@@ -98,7 +148,7 @@ namespace Prototype
             gr.Raycast(pointerEventData, results);
             if (results.Count != 0)
             {
-                pointer = results[0].gameObject.GetComponent<IPointer>();
+                pointer = results[0].gameObject.GetComponentInParent<IPointer>();
                 return pointer != null;
             }
             pointer = null;
