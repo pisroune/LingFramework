@@ -72,7 +72,6 @@ namespace QFramework
             {
                 _instances.Add(type, module); // 这里的 module 本身就是 T，也是 TBase，无需强转
             }
-            Debug.Log("成功添加:" + type);
         }
 
         // ================== 获取 (Get) ==================
