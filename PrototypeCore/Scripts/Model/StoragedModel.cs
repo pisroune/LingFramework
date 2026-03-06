@@ -39,6 +39,7 @@ namespace Prototype.Loader
             else
             {
                 Debug.Log("ÐÂ´æµµ£º" + Key);
+                VersionManager.Init();
                 _storage = new T();
                 NewMemory(_storage);
                 Save();

@@ -10,6 +10,7 @@ namespace Prototype
 {
     public class VersionManager
     {
+        static bool _init;
         static VersionDataSO _dataSO;
         static VersionStorage _desktopSave;   //玩家客户端存档
         static VersionStorage _gameVersion;   //当前游戏版本
@@ -19,9 +20,13 @@ namespace Prototype
         public static VersionStorage DesktopSave => _desktopSave;
         public static VersionStorage GameVersion => _gameVersion;
 
-        //[RuntimeInitializeOnLoadMethod]
-        static VersionManager()
+        public static void Init()
         {
+            if (_init)
+            {
+                return;
+            }
+            _init = true;
             _dataSO = Resources.Load<VersionDataSO>(DataSOPath);
             if (_dataSO == null)
             {
@@ -69,6 +74,12 @@ namespace Prototype
 
             //同步当前版本
             SaveManager.Save(Key, _gameVersion);
+        }
+
+        //[RuntimeInitializeOnLoadMethod]
+        static VersionManager()
+        {
+            Init();
         }
 
         public static bool FullNewGame()

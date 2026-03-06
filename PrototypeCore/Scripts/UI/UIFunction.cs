@@ -32,7 +32,6 @@ namespace Prototype
 
         static void OnUpdate()
         {
-            Debug.LogError(PointerIndicatorM);
             bool doRayCast = PointerIndicatorM != PointerIndicatorMode.None;
             if (doRayCast)
             {
