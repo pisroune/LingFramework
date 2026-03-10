@@ -3,10 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace QFramework
 {
-    public class MathMethod
+    /// <summary>
+    /// 数学 & 物理方法
+    /// </summary>
+    public static class MathMethod
     {
         /// <summary>
         /// 平滑改变数值（每帧改变smooth这么多）
@@ -764,6 +768,111 @@ namespace QFramework
             return key;
         }
 
+        #endregion
+
+
+        #region GetProximate
+
+        /// <summary>
+        /// 获取一个与输入值正相关的随机近似值
+        /// </summary>
+        /// <param name="baseValue">输入的基础值</param>
+        /// <param name="variance">方差/波动系数 (0-1)，0表示不波动，1表示达到最大偏差</param>
+        /// <param name="maxDeviation">硬性的最大偏差值</param>
+        /// <returns>计算后的 int 值</returns>
+        public static int GetProximateValue(int baseValue, int maxDeviation, float variance = 1, int minBound = int.MinValue,
+        int maxBound = int.MaxValue)
+        {
+            // 1. 确定当前实际的最大波动范围
+            float currentRange = maxDeviation * Mathf.Clamp01(variance);
+
+            // 2. 在 [-currentRange, currentRange] 之间取随机偏移
+            // 注意：Random.Range(float, float) 包含最大值，这里用 float 计算更精确
+            float offset = Random.Range(-currentRange, currentRange);
+
+            // 3. 加上基础值并取整
+            int result = Mathf.RoundToInt(baseValue + offset);
+
+            // 4. 限制在 0-100 (或者你需要的任何范围)
+            return Mathf.Clamp(result, minBound, maxBound);
+        }
+        /// <summary>
+        /// 获取一个与输入值正相关的随机近似值
+        /// </summary>
+        /// <param name="baseValue">输入的基础值</param>
+        /// <param name="variance">方差/波动系数 (0-1)，0表示不波动，1表示达到最大偏差</param>
+        /// <param name="maxDeviation">硬性的最大偏差值</param>
+        /// <returns>计算后的 int 值</returns>
+        public static float GetProximateValueF(float baseValue, float maxDeviation, float variance = 1, float minBound = float.MinValue,
+        float maxBound = float.MaxValue)
+        {
+            // 1. 确定当前实际的最大波动范围
+            float currentRange = maxDeviation * Mathf.Clamp01(variance);
+
+            // 2. 在 [-currentRange, currentRange] 之间取随机偏移
+            // 注意：Random.Range(float, float) 包含最大值，这里用 float 计算更精确
+            float offset = Random.Range(-currentRange, currentRange);
+
+            // 3. 加上基础值并取整
+            float result = baseValue + offset;
+
+            // 4. 限制在 0-100 (或者你需要的任何范围)
+            return Mathf.Clamp(result, minBound, maxBound);
+        }
+
+
+        /// <summary>
+        /// 获取一个与输入值正相关的随机近似值，符合正态分布
+        /// </summary>
+        /// <param name="baseValue">输入的基础值</param>
+        /// <param name="variance">方差/波动系数 (0-1)，0表示不波动，1表示达到最大偏差</param>
+        /// <param name="maxDeviation">硬性的最大偏差值</param>
+        /// <returns>计算后的 int 值</returns>
+        public static int GetProximateValueNormal(int baseValue, float variance, int maxDeviation, int minBound = int.MinValue,
+        int maxBound = int.MaxValue)
+        {
+            if (variance <= 0) return baseValue;
+
+            // 使用 Box-Muller 变换生成标准正态分布随机数 (均值为0，标准差为1)
+            float u1 = 1.0f - Random.value;
+            float u2 = 1.0f - Random.value;
+            float randStdNormal = Mathf.Sqrt(-2.0f * Mathf.Log(u1)) * Mathf.Sin(2.0f * Mathf.PI * u2);
+
+            // variance 在这里决定了分布的“宽度”
+            // 我们将 maxDeviation 作为 3 倍标准差（即 99.7% 的数据落在此范围内）
+            float offset = randStdNormal * (maxDeviation * variance / 3f);
+
+            // 限制单次偏移不超出 maxDeviation
+            offset = Mathf.Clamp(offset, -maxDeviation, maxDeviation);
+
+            return Mathf.Clamp(Mathf.RoundToInt(baseValue + offset), minBound, maxBound);
+        }
+        /// <summary>
+        /// 获取一个与输入值正相关的随机近似值，符合正态分布
+        /// </summary>
+        /// <param name="baseValue">输入的基础值</param>
+        /// <param name="variance">方差/波动系数 (0-1)，0表示不波动，1表示达到最大偏差</param>
+        /// <param name="maxDeviation">硬性的最大偏差值</param>
+        /// <returns>计算后的 int 值</returns>
+        public static float GetProximateValueNormalF(float baseValue, float variance, float maxDeviation, float minBound = float.MinValue,
+        float maxBound = float.MaxValue)
+        {
+            if (variance <= 0) return baseValue;
+
+            // 使用 Box-Muller 变换生成标准正态分布随机数 (均值为0，标准差为1)
+            float u1 = 1.0f - Random.value;
+            float u2 = 1.0f - Random.value;
+            float randStdNormal = Mathf.Sqrt(-2.0f * Mathf.Log(u1)) * Mathf.Sin(2.0f * Mathf.PI * u2);
+
+            // variance 在这里决定了分布的“宽度”
+            // 我们将 maxDeviation 作为 3 倍标准差（即 99.7% 的数据落在此范围内）
+            float offset = randStdNormal * (maxDeviation * variance / 3f);
+
+            // 限制单次偏移不超出 maxDeviation
+            offset = Mathf.Clamp(offset, -maxDeviation, maxDeviation);
+
+            return Mathf.Clamp(baseValue + offset, minBound, maxBound);
+        }
         #endregion
     }
 }
