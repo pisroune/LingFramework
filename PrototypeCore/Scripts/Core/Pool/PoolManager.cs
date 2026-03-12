@@ -44,11 +44,25 @@ namespace Prototype
         {
             return Spawn(prefab.transform, position, rotation, parent).gameObject;
         }
+        public GameObject Spawn(GameObject prefab)
+        {
+            return Spawn(prefab.transform).gameObject;
+        }
 
         /// <summary>
         /// 从池中获取对象
         /// </summary>
         public T Spawn<T>(T prefab, Vector3 position, Quaternion rotation, Transform parent = null) where T : Component
+        {
+            T instance = Spawn(prefab);
+            instance.transform.SetPositionAndRotation(position, rotation);
+
+            if (parent != null)
+                instance.transform.SetParent(parent);
+
+            return instance;
+        }
+        public T Spawn<T>(T prefab) where T : Component
         {
             int key = prefab.GetInstanceID();
 
@@ -60,11 +74,6 @@ namespace Prototype
 
             ObjectPool<T> pool = (ObjectPool<T>)_pools[key];
             T instance = pool.Spawn();
-
-            // 设置基本变换
-            instance.transform.SetPositionAndRotation(position, rotation);
-            if (parent != null) instance.transform.SetParent(parent);
-
             return instance;
         }
 
