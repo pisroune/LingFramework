@@ -111,6 +111,25 @@ namespace QFramework
 
 #if UNITY_EDITOR
         [MethodAPI]
+        [APIDescriptionCN("返回所有同名子物体")]
+        [APIDescriptionEN("返回所有同名子物体")]
+        [APIExampleCode(@"trans.FindDirectChildrenByName(name);")]
+#endif
+        public static List<Transform> FindDirectChildrenByName(this Transform root, string name)
+        {
+            var results = new List<Transform>();
+            for (int i = 0; i < root.childCount; i++)
+            {
+                var c = root.GetChild(i);
+                if (c.name == name) results.Add(c);
+            }
+            return results;
+        }
+
+
+
+#if UNITY_EDITOR
+        [MethodAPI]
         [APIDescriptionCN("设置父物体并归零")]
         [APIDescriptionEN("设置父物体并归零")]
         [APIExampleCode(@"trans.SetParentAndReset<T>(tarentTrans);")]
