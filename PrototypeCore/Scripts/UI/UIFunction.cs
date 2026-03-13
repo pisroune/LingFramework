@@ -1,3 +1,4 @@
+using Project_TankSchool;
 using Prototype;
 using QFramework;
 using System.Collections;
@@ -169,5 +170,17 @@ namespace Prototype
         }
         #endregion
 
+        public static bool CastScreenPointTarget(Vector2 screenPoint, int layerMask, out Vector3 position)
+        {
+            var mainCamera = Camera.main;
+            var ray = mainCamera.ScreenPointToRay(screenPoint);
+            if (Physics.Raycast(ray, out RaycastHit raycastHit, 2048.0f, layerMask))
+            {
+                position = raycastHit.point;
+                return true;
+            }
+            position = default;
+            return false;
+        }
     }
 }
