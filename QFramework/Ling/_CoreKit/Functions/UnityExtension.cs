@@ -125,6 +125,18 @@ namespace QFramework
             }
             return results;
         }
+        public static List<Transform> FindAllChildrenByName(this Transform root, string name, bool includeInactive = false)
+        {
+            var results = new List<Transform>();
+            foreach (var item in root.GetComponentsInChildren<Transform>(includeInactive))
+            {
+                if (item.name == name)
+                {
+                    results.Add(item);
+                }
+            }
+            return results;
+        }
 
 
 
