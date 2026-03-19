@@ -139,6 +139,64 @@ namespace QFramework
         }
 
 
+#if UNITY_EDITOR
+        [MethodAPI]
+        [APIDescriptionCN("获取物体本身以及一级子物体上的所有指定类型组件")]
+        [APIDescriptionEN("获取物体本身以及一级子物体上的所有指定类型组件")]
+        [APIExampleCode(@"trans.GetComponentInFirstChildren<T>();")]
+#endif
+        public static T GetComponentInFirstChildren<T>(this Component component, bool includeInactive = false)
+        {
+            // 1. 先检查自身
+            if (component.TryGetComponent<T>(out var self))
+                return self;
+
+            // 2. 遍历一级子物体
+            foreach (Transform child in component.transform)
+            {
+                if (!includeInactive && !child.gameObject.activeSelf) continue;
+
+                if (child.TryGetComponent<T>(out var comp))
+                    return comp;
+            }
+
+            return default(T);
+        }
+
+#if UNITY_EDITOR
+        [MethodAPI]
+        [APIDescriptionCN("获取物体本身以及一级子物体上的所有指定类型组件")]
+        [APIDescriptionEN("获取物体本身以及一级子物体上的所有指定类型组件")]
+        [APIExampleCode(@"trans.GetComponentsInFirstChildren<T>();")]
+#endif
+        public static List<T> GetComponentsInFirstChildren<T>(this Component component, bool includeInactive = false)
+        {
+            List<T> results = new List<T>();
+
+            // 1. 检查物体本身
+            T selfComp = component.GetComponent<T>();
+            if (selfComp != null)
+            {
+                results.Add(selfComp);
+            }
+
+            // 2. 遍历一级子物体（transform 的迭代器只包含直接子物体）
+            foreach (Transform child in component.transform)
+            {
+                if (!includeInactive && !child.gameObject.activeSelf) continue;
+
+                T childComp = child.GetComponent<T>();
+                
+                if (childComp != null)
+                {
+                    results.Add(childComp);
+                }
+            }
+
+            return results;
+        }
+
+
 
 #if UNITY_EDITOR
         [MethodAPI]
