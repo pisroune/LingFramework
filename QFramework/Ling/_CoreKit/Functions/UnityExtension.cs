@@ -13,7 +13,7 @@ namespace QFramework
 #endif
     public static class UnityExtension
     {
-        private static readonly System.Random _rng = new System¡£Random();
+        private static readonly System.Random _rng = new System.Random();
 
 #if UNITY_EDITOR
         [MethodAPI]
