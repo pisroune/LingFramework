@@ -13,6 +13,7 @@ namespace QFramework
 #endif
     public static class UnityExtension
     {
+        private static readonly System.Random _rng = new System。Random();
 
 #if UNITY_EDITOR
         [MethodAPI]
@@ -54,6 +55,96 @@ namespace QFramework
         {
             trans.gameObject.SetActive(boolen);
         }
+
+
+#if UNITY_EDITOR
+        [MethodAPI]
+        [APIDescriptionCN(" 将数组原地重新排序（洗牌）")]
+        [APIDescriptionEN(" 将数组原地重新排序（洗牌）")]
+        [APIExampleCode(@"array.Shuffle();")]
+#endif
+        public static void Shuffle<T>(this T[] array)
+        {
+            int n = array.Length;
+            while (n > 1)
+            {
+                n--;
+                int k = _rng.Next(n + 1);
+                T value = array[k];
+                array[k] = array[n];
+                array[n] = value;
+            }
+        }
+
+#if UNITY_EDITOR
+        [MethodAPI]
+        [APIDescriptionCN(" 将列表原地重新排序（洗牌）")]
+        [APIDescriptionEN(" 将列表原地重新排序（洗牌）")]
+        [APIExampleCode(@"list.Shuffle();")]
+#endif
+        public static void Shuffle<T>(this List<T> list)
+        {
+           int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = _rng.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
+        }
+
+
+#if UNITY_EDITOR
+        [MethodAPI]
+        [APIDescriptionCN(" 将数组重新排序并返回为一个新的列表")]
+        [APIDescriptionEN(" 将数组重新排序并返回为一个新的列表")]
+        [APIExampleCode(@"array.ToShuffledList();")]
+#endif
+        public static List<T> ToShuffledList<T>(this T[] array)
+        {
+            // 先复制一份，不破坏原数组
+            List<T> newList = new List<T>(array);
+            newList.Shuffle();
+            return newList;
+        }
+
+#if UNITY_EDITOR
+        [MethodAPI]
+        [APIDescriptionCN(" 返回洗牌后的新数组")]
+        [APIDescriptionEN(" 返回洗牌后的新数组")]
+        [APIExampleCode(@"array.GetShuffled();")]
+#endif
+        /// <summary>
+        /// 1. 返回洗牌后的新数组（不影响原数组）
+        /// </summary>
+        public static T[] GetShuffled<T>(this T[] array)
+        {
+            if (array == null) return null;
+
+            // 克隆一份新数组
+            T[] newArray = (T[])array.Clone();
+            Shuffle(newArray);
+            return newArray;
+        }
+
+#if UNITY_EDITOR
+        [MethodAPI]
+        [APIDescriptionCN(" 返回洗牌后的新列表")]
+        [APIDescriptionEN(" 返回洗牌后的新列表")]
+        [APIExampleCode(@"list.GetShuffled();")]
+#endif
+        public static List<T> GetShuffled<T>(this List<T> list)
+        {
+            if (list == null) return null;
+
+            // 通过构造函数创建一份新拷贝
+            List<T> newList = new List<T>(list);
+            Shuffle(newList);
+            return newList;
+        }
+
 
 
 #if UNITY_EDITOR
