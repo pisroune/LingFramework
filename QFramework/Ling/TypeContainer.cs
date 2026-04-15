@@ -15,6 +15,11 @@ namespace QFramework
         void Register<T>(T module) where T : TBase;
         void Register<T>(T module, Type type) where T : TBase;  //手动传类型，防止T和TBase完全相同
 
+        bool UnRegister<T>() where T : TBase;
+        bool UnRegister<T>(T module) where T : TBase;
+        bool UnRegister(Type type);
+
+
         T Get<T>() where T : TBase;
         TBase Get(Type type);
         bool TryGet<T>(out T result) where T : TBase;
@@ -72,6 +77,46 @@ namespace QFramework
             {
                 _instances.Add(type, module); // 这里的 module 本身就是 T，也是 TBase，无需强转
             }
+        }
+
+        /// <summary>
+        /// 按类型键注销（最常用）。
+        /// </summary>
+        /// <returns>true：成功移除；false：该类型本就不存在</returns>
+        public bool UnRegister<T>() where T : TBase
+        {
+            return UnRegister(typeof(T));
+        }
+
+        /// <summary>
+        /// 按 Type 注销，对应 Register(module, Type) 的对称操作。
+        /// </summary>
+        public bool UnRegister(Type type)
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+
+            return _instances.Remove(type);
+        }
+
+        /// <summary>
+        /// 按实例注销：仅当容器中存储的实例与传入实例是同一引用时，才执行移除。
+        /// 适用于"模块自注销"场景，防止模块 A 误删模块 B 注册的同类型服务。
+        /// </summary>
+        /// <returns>true：找到且引用匹配，已移除；false：未找到或引用不匹配</returns>
+        public bool UnRegister<T>(T module) where T : TBase
+        {
+            if (module == null) throw new ArgumentNullException(nameof(module));
+
+            Type key = typeof(T);
+
+            // 必须是同一引用才能移除，防止误删
+            if (_instances.TryGetValue(key, out TBase stored) && ReferenceEquals(stored, module))
+            {
+                _instances.Remove(key);
+                return true;
+            }
+
+            return false;
         }
         #endregion
 
@@ -148,6 +193,10 @@ namespace QFramework
         void Register<T>(T module);
         void Register(object module, Type type);
 
+        bool UnRegister<T>();
+        bool UnRegister(Type type);
+        bool UnRegister<T>(T module) where T : class;
+
         T Get<T>() where T : class;
         object Get(Type type);
         bool TryGet<T>(out T result) where T : class;
@@ -202,6 +251,32 @@ namespace QFramework
             {
                 _instances.Add(type, module);
             }
+        }
+
+        public bool UnRegister<T>()
+        {
+            return UnRegister(typeof(T));
+        }
+
+        public bool UnRegister(Type type)
+        {
+            if (type == null) throw new ArgumentNullException(nameof(type));
+            return _instances.Remove(type);
+        }
+
+        public bool UnRegister<T>(T module) where T : class
+        {
+            if (module == null) throw new ArgumentNullException(nameof(module));
+
+            Type key = typeof(T);
+
+            if (_instances.TryGetValue(key, out object stored) && ReferenceEquals(stored, module))
+            {
+                _instances.Remove(key);
+                return true;
+            }
+
+            return false;
         }
         #endregion
 
