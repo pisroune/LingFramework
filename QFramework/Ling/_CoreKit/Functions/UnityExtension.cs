@@ -394,5 +394,52 @@ namespace QFramework
         {
             return component.gameObject.activeSelf;
         }
+
+
+
+
+        public static T LocalEulerAngleX<T>(this T selfComponent, float x) where T : Component
+        {
+            var angle = selfComponent.transform.localEulerAngles;
+            angle.x = x;
+            selfComponent.transform.localEulerAngles = angle;
+            return selfComponent;
+        }
+        public static T LocalEulerAngleY<T>(this T selfComponent, float y) where T : Component
+        {
+            var angle = selfComponent.transform.localEulerAngles;
+            angle.y = y;
+            selfComponent.transform.localEulerAngles = angle;
+            return selfComponent;
+        }
+        public static T LocalEulerAngleZ<T>(this T selfComponent, float z) where T : Component
+        {
+            var angle = selfComponent.transform.localEulerAngles;
+            angle.z = z;
+            selfComponent.transform.localEulerAngles = angle;
+            return selfComponent;
+        }
+        public static T EulerAngleX<T>(this T selfComponent, float x) where T : Component
+        {
+            var angle = selfComponent.transform.eulerAngles;
+            angle.x = x;
+            selfComponent.transform.eulerAngles = angle;
+            return selfComponent;
+        }
+        public static T EulerAngleY<T>(this T selfComponent, float y) where T : Component
+        {
+            var angle = selfComponent.transform.eulerAngles;
+            angle.y = y;
+            selfComponent.transform.eulerAngles = angle;
+            return selfComponent;
+        }
+        public static T EulerAngleZ<T>(this T selfComponent, float z) where T : Component
+        {
+            var angle = selfComponent.transform.eulerAngles;
+            angle.z = z;
+            selfComponent.transform.eulerAngles = angle;
+            return selfComponent;
+        }
+
     }
 }
