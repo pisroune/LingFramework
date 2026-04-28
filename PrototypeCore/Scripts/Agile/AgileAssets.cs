@@ -34,6 +34,9 @@ namespace Prototype
         void InitInstance()
         {
             Instance._audioClipDicts = new Dictionary<string, AgileAudioClip>();
+            Instance._gameObjects = new Dictionary<string, AgileGameObject>();
+            Instance._vfx = new Dictionary<string, AgileVfx>();
+
             foreach (var item in AgileAudioClips)
             {
                 Instance._audioClipDicts.TryAdd(item.name, item);
@@ -41,6 +44,10 @@ namespace Prototype
             foreach (var item in AgileGameObjects)
             {
                 Instance._gameObjects.TryAdd(item.name, item);
+            }
+            foreach (var item in AgileVfx)
+            {
+                Instance._vfx.TryAdd(item.name, item);
             }
         }
 
@@ -113,6 +120,8 @@ namespace Prototype
             assets.AgileAudioClips = AssetDatabase.FindAssets("t:AgileAudioClip")
            .Select(guid => AssetDatabase.LoadAssetAtPath<AgileAudioClip>(AssetDatabase.GUIDToAssetPath(guid)))
            .ToArray();
+
+            Debug.Log("Register Agile Audio: Success");
         }
         public static void RegisterGameObjects()
         {
@@ -126,6 +135,8 @@ namespace Prototype
             assets.AgileGameObjects = AssetDatabase.FindAssets("t:AgileGameObject")
            .Select(guid => AssetDatabase.LoadAssetAtPath<AgileGameObject>(AssetDatabase.GUIDToAssetPath(guid)))
            .ToArray();
+
+            Debug.Log("Register Agile GameObjects: Success");
         }
         public static void RegisterVfx()
         {
@@ -139,6 +150,8 @@ namespace Prototype
             assets.AgileVfx = AssetDatabase.FindAssets("t:AgileVfx")
            .Select(guid => AssetDatabase.LoadAssetAtPath<AgileVfx>(AssetDatabase.GUIDToAssetPath(guid)))
            .ToArray();
+
+            Debug.Log("Register Agile Vfx: Success");
         }
         #endregion
 
