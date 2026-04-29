@@ -48,5 +48,10 @@ namespace QFramework
             toggle.RemoveAllListeners();
             toggle.AddListener(action);
         }
+
+        public static void SetAlpha(this Graphic graphic, float alpha)
+        {
+            graphic.color = new Color(graphic.color.r, graphic.color.g, graphic.color.b, alpha);
+        }
     }
 }

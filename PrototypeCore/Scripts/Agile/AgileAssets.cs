@@ -120,7 +120,7 @@ namespace Prototype
             assets.AgileAudioClips = AssetDatabase.FindAssets("t:AgileAudioClip")
            .Select(guid => AssetDatabase.LoadAssetAtPath<AgileAudioClip>(AssetDatabase.GUIDToAssetPath(guid)))
            .ToArray();
-
+            EditorUtility.SetDirty(assets);
             Debug.Log("Register Agile Audio: Success");
         }
         public static void RegisterGameObjects()
@@ -135,6 +135,7 @@ namespace Prototype
             assets.AgileGameObjects = AssetDatabase.FindAssets("t:AgileGameObject")
            .Select(guid => AssetDatabase.LoadAssetAtPath<AgileGameObject>(AssetDatabase.GUIDToAssetPath(guid)))
            .ToArray();
+            EditorUtility.SetDirty(assets);
 
             Debug.Log("Register Agile GameObjects: Success");
         }
@@ -150,6 +151,7 @@ namespace Prototype
             assets.AgileVfx = AssetDatabase.FindAssets("t:AgileVfx")
            .Select(guid => AssetDatabase.LoadAssetAtPath<AgileVfx>(AssetDatabase.GUIDToAssetPath(guid)))
            .ToArray();
+            EditorUtility.SetDirty(assets);
 
             Debug.Log("Register Agile Vfx: Success");
         }
