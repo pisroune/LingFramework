@@ -64,7 +64,7 @@ namespace Prototype
         {
             //确保已经加载本地化
             if (!localizationLoaded)
-                return "";
+                return key;
 
             if (dictionary.TryGetValue(key, out var value) && !value.IsNullOrEmpty())
             {  //获取value
@@ -80,7 +80,7 @@ namespace Prototype
             //确保已经加载本地化
             if (!localizationLoaded)
             {
-                value = "";
+                value = key;
                 return false;
             }
 
