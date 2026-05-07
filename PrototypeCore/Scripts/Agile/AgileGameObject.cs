@@ -12,6 +12,16 @@ namespace Prototype
     {
         public GameObject GameObjects;
 
+
+
+        public GameObject GetPrefab()
+        {
+            return GameObjects;
+        }
+        public T GetPrefab<T>() where T : Component, IPoolablePrefab
+        {
+            return GameObjects.GetComponent<T>();
+        }
         public GameObject Spawn(Vector3 position, Quaternion rotation, Transform parent = null)
         {
             return PoolManager.Instance.Spawn(GameObjects, position, rotation, parent);
@@ -21,7 +31,7 @@ namespace Prototype
             T component = GameObjects.GetComponent<T>();
             return PoolManager.Instance.Spawn(component, position, rotation, parent);
         }
-        public GameObject Instantiate(Vector3 position, Quaternion rotation, Transform parent = null)
+        public GameObject Generate(Vector3 position, Quaternion rotation, Transform parent = null)
         {
             return GameObject.Instantiate(GameObjects, position, rotation, parent);
         }

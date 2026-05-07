@@ -1,3 +1,4 @@
+using Pathfinding.RVO;
 using Prototype;
 using QFramework;
 using Sirenix.OdinInspector;
@@ -61,6 +62,24 @@ namespace Prototype
             Debug.LogError("Œ¥’“µΩ£∫" + key);
             return;
         }
+        public static GameObject GetPrefab(string key)
+        {
+            if (Instance._gameObjects.TryGetValue(key, out var value))
+            {
+                return value.GetPrefab();
+            }
+            Debug.LogError("Œ¥’“µΩ£∫" + key);
+            return null;
+        }
+        public static T GetPrefab<T>(string key) where T : Component, IPoolablePrefab
+        {
+            if (Instance._gameObjects.TryGetValue(key, out var value))
+            {
+                return value.GetPrefab<T>();
+            }
+            Debug.LogError("Œ¥’“µΩ£∫" + key);
+            return null;
+        }
         public static GameObject Spawn(string key, Vector3 position, Quaternion rotation, Transform parent = null)
         {
             if (Instance._gameObjects.TryGetValue(key, out var value))
@@ -79,11 +98,11 @@ namespace Prototype
             Debug.LogError("Œ¥’“µΩ£∫" + key);
             return null;
         }
-        public static GameObject Instantiate(string key, Vector3 position, Quaternion rotation, Transform parent = null)
+        public static GameObject Generate(string key, Vector3 position, Quaternion rotation, Transform parent = null)
         {
             if (Instance._gameObjects.TryGetValue(key, out var value))
             {
-                return value.Instantiate(position, rotation, parent);
+                return value.Generate(position, rotation, parent);
             }
             Debug.LogError("Œ¥’“µΩ£∫" + key);
             return null;
