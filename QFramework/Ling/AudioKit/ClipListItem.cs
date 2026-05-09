@@ -17,7 +17,7 @@ namespace QFramework
         private int nextActive = 0;
         public List<PooledAudioClip> ActivedSource { get; private set; } = new List<PooledAudioClip>();  //正在播放中的音效
 
-        public ClipListItem(int key, int spawnSize, int blend, bool loop)
+        public ClipListItem(int key, int spawnSize, int blend, bool loop, bool addFilter)
         {
             _key = key;
             _blend = blend;
@@ -28,7 +28,7 @@ namespace QFramework
             pooledAudio = new List<PooledAudioClip>();
             for (int i = 0; i < spawnSize; i++)
             {
-                PooledAudioClip temp = NewItem(true);
+                PooledAudioClip temp = NewItem(addFilter);
                 temp.gameObject.name = i.ToString();
                 pooledAudio.Add(temp);
             }

@@ -148,7 +148,7 @@ namespace QFramework
         {
             if (!PooledListDict.ContainsKey(index))
             {
-                PooledListDict.Add(index, new ClipListItem(index, size, blend, loop));
+                PooledListDict.Add(index, new ClipListItem(index, size, blend, loop, false));
             }
             else
             {
@@ -159,7 +159,7 @@ namespace QFramework
         {
             if (!PooledListDict.ContainsKey(index))
             {
-                ClipListItem listItem = new ClipListItem(index, size, blend, loop);
+                ClipListItem listItem = new ClipListItem(index, size, blend, loop, true);
                 foreach (var pooledAudio in listItem.pooledAudio)
                 {
                     pooledAudio.ASource.gameObject.AddComponent<AudioLowPassFilter>();
