@@ -16,10 +16,12 @@ namespace Prototype
             return VfxBase.Play(args);
         }
 
+#if UNITY_EDITOR
         [Button("ÌØÐ§×¢²á")]
         public void Register()
         {
             AgileAssets.RegisterVfx();
         }
+#endif
     }
 }

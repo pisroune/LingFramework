@@ -36,10 +36,12 @@ namespace Prototype
             return GameObject.Instantiate(GameObjects, position, rotation, parent);
         }
 
+#if UNITY_EDITOR
         [Button("Ô¤ÖÆÌå×¢²á")]
         public void Register()
         {
             AgileAssets.RegisterGameObjects();
         }
+#endif
     }
 }

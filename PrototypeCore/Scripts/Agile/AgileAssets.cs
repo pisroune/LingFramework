@@ -115,7 +115,7 @@ namespace Prototype
 
 
         #region ×¢²á
-
+        #if UNITY_EDITOR
         [Button("Í³Ò»×¢²á")]
         public void Register()
         {
@@ -170,7 +170,8 @@ namespace Prototype
 
             Debug.Log("Register Agile Vfx: Success");
         }
-        #endregion
+#endif
+#endregion
 
     }
 }

@@ -6,6 +6,7 @@ namespace Prototype
 {
     public static class ScriptableObjectExtension
     {
+#if UNITY_EDITOR
         public static void RenameAssetFile(this ScriptableObject newObject, string newName)
         {
             if (string.IsNullOrWhiteSpace(newName))
@@ -35,5 +36,6 @@ namespace Prototype
             else
                 Debug.LogError($"÷ÿ√¸√˚ ß∞‹£∫{result}");
         }
+#endif
     }
 }

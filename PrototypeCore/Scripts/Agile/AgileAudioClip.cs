@@ -27,10 +27,12 @@ namespace Prototype
             }
         }
 
+#if UNITY_EDITOR
         [Button("ÒôÆµ×¢²á")]
         public void Register()
         {
             AgileAssets.RegisterAgileAudioClips();
         }
+#endif
     }
 }

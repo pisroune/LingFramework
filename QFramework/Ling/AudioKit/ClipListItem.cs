@@ -28,7 +28,7 @@ namespace QFramework
             pooledAudio = new List<PooledAudioClip>();
             for (int i = 0; i < spawnSize; i++)
             {
-                PooledAudioClip temp = NewItem();
+                PooledAudioClip temp = NewItem(true);
                 temp.gameObject.name = i.ToString();
                 pooledAudio.Add(temp);
             }
@@ -42,7 +42,7 @@ namespace QFramework
             }
         }
 
-        PooledAudioClip NewItem()
+        PooledAudioClip NewItem(bool addFilter)
         {
             GameObject gameObject = new GameObject();
             gameObject.transform.position = _parent.position;
@@ -54,6 +54,13 @@ namespace QFramework
             source.dopplerLevel = 0;
             source.spatialBlend = _blend;
             source.loop = _loopAudio;
+
+            if (addFilter)
+            {
+                gameObject.AddComponent<AudioLowPassFilter>();
+                gameObject.AddComponent<AudioHighPassFilter>();
+                gameObject.AddComponent<AudioDistortionFilter>();
+            }
 
             PooledAudioClip item = gameObject.AddComponent<PooledAudioClip>();
             item.Init(_key, DeActiveClip);
@@ -74,7 +81,7 @@ namespace QFramework
         public PooledAudioClip PlayClipAt(AudioClip clip, Vector3 pos, float vol = 1,
             float pitch = 1.0f, int rolloffMode = 1, float minDist = 10f, float maxDist = 100.0f)
         {
-            PooledAudioClip pooledClip = SpawnTempAudio(pos, Quaternion.identity);
+            PooledAudioClip pooledClip = SpawnTempAudio(pos, Quaternion.identity, false);
             AudioSource aSource = pooledClip.ASource;
 
             aSource.clip = clip;
@@ -95,7 +102,7 @@ namespace QFramework
             float pitch = 1.0f, float blend = 0, int rolloffMode = 1, float minDist = 10f, float maxDist = 100.0f,
             float lowPassFilter = 5500, float highPassFilter = 50, float distortionFilter = 0)
         {
-            PooledAudioClip pooledClip = SpawnTempAudio(pos, Quaternion.identity);
+            PooledAudioClip pooledClip = SpawnTempAudio(pos, Quaternion.identity, true);
             AudioSource aSource = pooledClip.ASource;
 
             aSource.clip = clip;
@@ -117,7 +124,7 @@ namespace QFramework
             return pooledClip;
         }
 
-        PooledAudioClip SpawnTempAudio(Vector3 spawnPosition, Quaternion spawnRotation)
+        PooledAudioClip SpawnTempAudio(Vector3 spawnPosition, Quaternion spawnRotation, bool addFilter)
         {
             PooledAudioClip tempAudio;
             if (pooledAudio.Count >= nextActive + 1 && !pooledAudio[nextActive].gameObject.activeSelf)  //下一个已经准备就绪 => 使用这个
@@ -129,7 +136,7 @@ namespace QFramework
             }
             else                                     //下一个还没有准备好 => 插一个新的
             {
-                tempAudio = NewItem();//实例化一个池中资源
+                tempAudio = NewItem(addFilter);//实例化一个池中资源
                 pooledAudio.Insert(nextActive, tempAudio);
 
                 tempAudio = pooledAudio[nextActive];

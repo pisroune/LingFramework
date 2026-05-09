@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 namespace Prototype
 {
+#if UNITY_EDITOR
+    using UnityEditor.IMGUI.Controls;
     public class StringSearchableDropdown : AdvancedDropdown
     {
         private string[] _options;
@@ -39,7 +40,6 @@ namespace Prototype
             _onSelected?.Invoke(item.name);
         }
     }
-#if UNITY_EDITOR
     public class StringDrawerExtension
     {
         public static void StartDraw(Rect position, SerializedProperty property, GUIContent label, string[] options)
