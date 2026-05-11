@@ -1720,6 +1720,16 @@ gameObj.SiblingIndex(10);
             return self;
         }
 
+        public static GameObject LocalEulerAnglesX(this GameObject self, float x)
+        {
+            self.LocalEulerAngles(self.LocalEulerAngles().X(x));
+            return self;
+        }
+        public static GameObject LocalEulerAnglesY(this GameObject self, float y)
+        {
+            self.LocalEulerAngles(self.LocalEulerAngles().Y(y));
+            return self;
+        }
         public static GameObject LocalEulerAnglesZ(this GameObject self, float z)
         {
             self.LocalEulerAngles(self.LocalEulerAngles().Z(z));
