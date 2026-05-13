@@ -37,7 +37,7 @@ namespace QFramework
         private void Update()
         {
             _timer += Time.deltaTime;
-            if (_timer >= ASource.clip.length)
+            if (ASource.clip == null || _timer >= ASource.clip.length)
             {  //播放完毕自动停止
                 StopAudio();
             }
