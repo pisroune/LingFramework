@@ -22,7 +22,7 @@ namespace QFramework
 #endif
         public static T GetRandom<T>(this List<T> selfList)
         {
-            return selfList[UnityEngine.Random.Range(0, selfList.Count - 1)];
+            return selfList[UnityEngine.Random.Range(0, selfList.Count)];
         }
 
 #if UNITY_EDITOR
@@ -33,7 +33,7 @@ namespace QFramework
 #endif
         public static T GetRandom<T>(this T[] selfList)
         {
-            return selfList[UnityEngine.Random.Range(0, selfList.Length - 1)];
+            return selfList[UnityEngine.Random.Range(0, selfList.Length)];
         }
 
 

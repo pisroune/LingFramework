@@ -26,7 +26,14 @@ namespace Prototype
         static void InitGameSetting()
         {
             Instance = AssetManager.Load<AgileAssets>("ScriptableObject/AgileAssets");
-            Instance.InitInstance();
+            if (Instance)
+            {
+                Instance.InitInstance();
+            }
+            else
+            {
+                Debug.LogError("√ª”–’“µΩAgileAssets");
+            }
         }
         void InitInstance()
         {

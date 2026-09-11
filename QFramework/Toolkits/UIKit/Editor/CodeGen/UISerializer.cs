@@ -55,7 +55,7 @@ namespace QFramework
 					EditorUtility.DisplayProgressBar("", "Serialize UIPrefab..." + uiPrefab.name,
 						(float)(i + 1) / paths.Length);
 				Debug.Log(">>>>>>>Success Serialize UIPrefab: " + uiPrefab.name);
-			}
+			} 
 
 			AssetDatabase.SaveAssets();
 			AssetDatabase.Refresh();
