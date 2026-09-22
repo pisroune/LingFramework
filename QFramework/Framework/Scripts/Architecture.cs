@@ -67,6 +67,10 @@ namespace QFramework
     public abstract class Architecture<T> : IArchitecture where T : Architecture<T>, new()
     {
         private bool mInited = false;
+        private bool mDeinitializing;
+        private bool mDeinitialized;
+        private readonly List<ICanInit> mStartedModules = new List<ICanInit>();
+        protected bool IsInitialized => mInited;
         public static Action<T> OnRegisterPatch = architecture => { };
 
         protected static T mArchitecture;
@@ -102,24 +106,49 @@ namespace QFramework
         }
         static void OnInitArchitecture()
         {
-            mArchitecture.Init();
-            OnRegisterPatch?.Invoke(mArchitecture);
-
-            foreach (var model in mArchitecture._container.GetInstancesByType<IModel>().Where(m => !m.Initialized))
+            var architecture = mArchitecture;
+            architecture.InitializeSafely(() =>
             {
-                model.Init();
-                model.Initialized = true;
-            }
+                architecture.Init();
+                OnRegisterPatch?.Invoke(architecture);
 
-            foreach (var system in mArchitecture._container.GetInstancesByType<ISystem>()
-                         .Where(m => !m.Initialized))
+                foreach (var model in architecture._container.GetInstancesByType<IModel>().ToArray())
+                    architecture.InitializeModule(model);
+                foreach (var system in architecture._container.GetInstancesByType<ISystem>().ToArray())
+                    architecture.InitializeModule(system);
+
+                architecture.LateInit();
+                architecture.mInited = true;
+            });
+        }
+
+        void InitializeModule(ICanInit module)
+        {
+            if (module.Initialized) return;
+            // Track the attempt as well as successes: a failed OnInit may own subscriptions.
+            mStartedModules.Add(module);
+            module.Init();
+            module.Initialized = true;
+            OnModuleInitialized(module);
+        }
+
+        protected virtual void OnModuleInitialized(ICanInit module) { }
+
+        void InitializeSafely(Action initialize)
+        {
+            try { initialize(); }
+            catch (Exception initializationError)
             {
-                system.Init();
-                system.Initialized = true;
+                // Dependencies may already have observed this module. Fail the architecture
+                // as a unit (also for hot registration), rather than leave partial state alive.
+                try { Deinit(); }
+                catch (Exception cleanupError)
+                {
+                    throw new AggregateException($"Failed to initialize and clean up {GetType().Name}.",
+                        initializationError, cleanupError);
+                }
+                throw;
             }
-            mArchitecture.LateInit();
-
-            mArchitecture.mInited = true;
         }
 
         protected abstract void Init();
@@ -127,16 +156,50 @@ namespace QFramework
 
         public void Deinit()
         {
-            OnDeinit();
-            foreach (var system in _container.GetInstancesByType<ISystem>().Where(s => s.Initialized)) system.Deinit();
-            foreach (var model in _container.GetInstancesByType<IModel>().Where(m => m.Initialized)) model.Deinit();
-            _container.Clear();
-            mArchitecture = null;
+            if (mDeinitializing || mDeinitialized) return;
+            mDeinitializing = true;
+            mInited = false;
+            var errors = new List<Exception>();
+            try
+            {
+                TryCleanup(OnDeinit, errors);
+                // Systems may still need models and framework resources during cleanup.
+                foreach (var system in mStartedModules.OfType<ISystem>().ToArray())
+                    DeinitializeModule(system, errors);
+                foreach (var model in mStartedModules.OfType<IModel>().ToArray())
+                    DeinitializeModule(model, errors);
+                TryCleanup(OnAfterDeinit, errors);
+            }
+            finally
+            {
+                mStartedModules.Clear();
+                _container.Clear();
+                mTypeEventSystem = new TypeEventSystem();
+                if (ReferenceEquals(mArchitecture, this)) mArchitecture = null;
+                mDeinitialized = true;
+                mDeinitializing = false;
+            }
+            if (errors.Count > 0)
+                throw new AggregateException($"Failed to clean up {GetType().Name}.", errors);
+        }
+
+        static void DeinitializeModule(ICanInit module, List<Exception> errors)
+        {
+            try { TryCleanup(module.Deinit, errors); }
+            finally { module.Initialized = false; }
+        }
+
+        protected static void TryCleanup(Action cleanup, List<Exception> errors)
+        {
+            try { cleanup(); }
+            catch (Exception error) { errors.Add(error); }
         }
 
         protected virtual void OnDeinit()
         {
         }
+
+        protected virtual void OnAfterDeinit() { }
 
         private IOCContainer _container = new IOCContainer();
         public IOCContainer Container => _container;
@@ -144,32 +207,44 @@ namespace QFramework
 
         public void RegisterSystem<TSystem>(TSystem system) where TSystem : ISystem
         {
+            ValidateRegistration(system);
             system.SetArchitecture(this);
             _container.Register<TSystem>(system);
-            if (mInited)
+            InitializeSafely(() =>
             {
-                system.Init();
-                system.Initialized = true;
-            }
-            OnRegisterSystem(system);
+                OnRegisterSystem(system);
+                if (mInited) InitializeModule(system);
+            });
         }
         protected virtual void OnRegisterSystem<TSystem>(TSystem system) where TSystem : ISystem { }
 
         public void RegisterModel<TModel>(TModel model) where TModel : IModel
         {
+            ValidateRegistration(model);
             model.SetArchitecture(this);
             _container.Register<TModel>(model);
-            if (mInited)
+            InitializeSafely(() =>
             {
-                model.Init();
-                model.Initialized = true;
-            }
-            OnRegisterModel(model);
+                OnRegisterModel(model);
+                if (mInited) InitializeModule(model);
+            });
         }
         protected virtual void OnRegisterModel<TModel>(TModel model) where TModel : IModel { }
 
-        public void RegisterUtility<TUtility>(TUtility utility) where TUtility : IUtility =>
+        public void RegisterUtility<TUtility>(TUtility utility) where TUtility : IUtility
+        {
+            ValidateRegistration(utility);
             _container.Register<TUtility>(utility);
+        }
+
+        void ValidateRegistration<TModule>(TModule module)
+        {
+            if (mDeinitializing || mDeinitialized)
+                throw new ObjectDisposedException(GetType().Name);
+            if (ReferenceEquals(module, null)) throw new ArgumentNullException(nameof(module));
+            if (_container.Contains<TModule>())
+                throw new InvalidOperationException($"{GetType().Name} already contains {typeof(TModule).FullName}.");
+        }
 
         public virtual TSystem GetSystem<TSystem>() where TSystem : class, ISystem => _container.Get<TSystem>();
         public virtual bool TryGetSystem<TSystem>(out TSystem result) where TSystem : class, ISystem
@@ -665,6 +740,8 @@ namespace QFramework
     public class IOCContainer
     {
         private Dictionary<Type, object> mInstances = new Dictionary<Type, object>();
+
+        internal bool Contains<T>() => mInstances.ContainsKey(typeof(T));
 
         public void Register<T>(T instance)
         {

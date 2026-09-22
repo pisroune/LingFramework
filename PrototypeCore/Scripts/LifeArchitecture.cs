@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,6 +24,7 @@ namespace QFramework
         sealed void DestroyDefaultGameObject()
         {
             GameObject.Destroy(ExternalGameObject);
+            ExternalGameObject = null;
         }
     }
     public interface IWithLoader
@@ -35,7 +37,7 @@ namespace QFramework
         }
         sealed void RemoveLoader()
         {
-            Loader.Recycle2Cache(); 
+            Loader?.Recycle2Cache();
             Loader = null;
         }
     }
@@ -71,6 +73,9 @@ namespace QFramework
     public abstract class LingArchitecture<T> : Architecture<T>, ILingArchitecture where T : Architecture<T>, new()
     {
         static ILingArchitecture _instance;
+        private IUnRegister _updateRegistration;
+        private IUnRegister _fixedUpdateRegistration;
+        private IUnRegister _lateUpdateRegistration;
         public static ILingArchitecture LingInterface
         {
             get
@@ -92,17 +97,9 @@ namespace QFramework
         {
             _instance = this;
             OnInitalized();
-            foreach (var item in _withGameObject)
-            {
-                item.InstantiateDefaultGameObject();
-            }
-            foreach (var item in _withLoader)
-            {
-                item.AllocateLoader();
-            }
-            ActionKit.OnUpdate.Register(_instance.Update);
-            ActionKit.OnFixedUpdate.Register(_instance.FixedUpdate);
-            ActionKit.OnLateUpdate.Register(_instance.LateUpdate);
+            _updateRegistration = ActionKit.OnUpdate.Register(((ILingArchitecture)this).Update);
+            _fixedUpdateRegistration = ActionKit.OnFixedUpdate.Register(((ILingArchitecture)this).FixedUpdate);
+            _lateUpdateRegistration = ActionKit.OnLateUpdate.Register(((ILingArchitecture)this).LateUpdate);
             Debug.Log("≥ı ºªØº‹ππ£∫" + this.GetType().Name);
         }
         protected abstract void OnInitalized();
@@ -117,17 +114,40 @@ namespace QFramework
 
         protected override void OnDeinit()
         {
-            foreach (var withGameObject in _withGameObject)
-            {
-                withGameObject.DestroyDefaultGameObject();
-            }
+            // Stop callbacks first; module cleanup still needs its host and loader.
+            _updateRegistration?.UnRegister();
+            _fixedUpdateRegistration?.UnRegister();
+            _lateUpdateRegistration?.UnRegister();
+            _updateRegistration = null;
+            _fixedUpdateRegistration = null;
+            _lateUpdateRegistration = null;
+        }
+
+        protected override void OnAfterDeinit()
+        {
+            var errors = new List<Exception>();
             foreach (var item in _withLoader)
-            {
-                item.RemoveLoader();
-            }
-            ActionKit.OnUpdate.UnRegister(_instance.Update);
-            ActionKit.OnFixedUpdate.UnRegister(_instance.FixedUpdate);
-            ActionKit.OnLateUpdate.UnRegister(_instance.LateUpdate);
+                TryCleanup(item.RemoveLoader, errors);
+            foreach (var item in _withGameObject)
+                TryCleanup(item.DestroyDefaultGameObject, errors);
+
+            _lateActive.Clear();
+            _withGameObject.Clear();
+            _withLoader.Clear();
+            _updates.Clear();
+            _fixedUpdates.Clear();
+            _lateUpdates.Clear();
+            AllComponent.Clear();
+            CitationArchitectures.Clear();
+            if (ReferenceEquals(_instance, this)) _instance = null;
+            if (errors.Count > 0)
+                throw new AggregateException("Failed to release LingArchitecture resources.", errors);
+        }
+
+        protected override void OnModuleInitialized(ICanInit module)
+        {
+            // Initial startup has a shared late-init phase; hot registration completes here.
+            if (IsInitialized && module is ILateInit lateInit) lateInit.LateInit();
         }
 
         protected override void OnRegisterModel<TModel>(TModel model)
@@ -140,33 +160,23 @@ namespace QFramework
         }
         void GetComponent<TComponent>(TComponent component) where TComponent : IBelongToArchitecture, ICanInit
         {
-            AllComponent.Add(component);
+            if (!AllComponent.Add(component)) return;
             if (component is ILateInit)
             {
                 var lateInit = (ILateInit)component;
                 _lateActive.Add(lateInit);
-                if (component.Initialized)
-                {
-                    lateInit.LateInit();
-                }
             }
             if (component is IWithGameObject)
             {
                 var withGameObject = (IWithGameObject)component;
                 _withGameObject.Add(withGameObject);
-                if (component.Initialized)
-                {
-                    withGameObject.InstantiateDefaultGameObject();
-                }
+                withGameObject.InstantiateDefaultGameObject();
             }
             if (component is IWithLoader)
             {
                 var withLoader = (IWithLoader)component;
                 _withLoader.Add(withLoader);
-                if (component.Initialized)
-                {
-                    withLoader.AllocateLoader();
-                }
+                withLoader.AllocateLoader();
             }
             if (component is IUpdate)
             {
@@ -184,6 +194,7 @@ namespace QFramework
 
         void ILingArchitecture.Update()
         {
+            if (!IsInitialized) return;
             foreach (var updater in _updates)
             {
                 updater.Update();
@@ -191,6 +202,7 @@ namespace QFramework
         }
         void ILingArchitecture.FixedUpdate()
         {
+            if (!IsInitialized) return;
             foreach (var updater in _fixedUpdates)
             {
                 updater.FixedUpdate();
@@ -198,6 +210,7 @@ namespace QFramework
         }
         void ILingArchitecture.LateUpdate()
         {
+            if (!IsInitialized) return;
             foreach (var updater in _lateUpdates)
             {
                 updater.LateUpdate();
@@ -214,20 +227,18 @@ namespace QFramework
         }
         public override bool TryGetSystem<TSystem>(out TSystem result)
         {
-            if (Container.TryGet<TSystem>(out result))
-            {
-                return true;
-            }
-
-            foreach (var item in CitationArchitectures)
-            {
-                if (item.TryGetSystem(out result))
-                {
-                    return true;
-                }
-            }
             result = null;
-            return false;
+            if (!LingArchitectureLookup<TSystem>.Enter(this)) return false;
+            try
+            {
+                if (Container.TryGet<TSystem>(out result)) return true;
+                foreach (var item in CitationArchitectures)
+                {
+                    if (item != null && item.TryGetSystem(out result)) return true;
+                }
+                return false;
+            }
+            finally { LingArchitectureLookup<TSystem>.Exit(this); }
         }
 
         public override TModel GetModel<TModel>()
@@ -240,20 +251,18 @@ namespace QFramework
         }
         public override bool TryGetModel<TModel>(out TModel result)
         {
-            if (Container.TryGet<TModel>(out result))
-            {
-                return true;
-            }
-
-            foreach (var item in CitationArchitectures)
-            {
-                if (item.TryGetModel(out result))
-                {
-                    return true;
-                }
-            }
             result = null;
-            return false;
+            if (!LingArchitectureLookup<TModel>.Enter(this)) return false;
+            try
+            {
+                if (Container.TryGet<TModel>(out result)) return true;
+                foreach (var item in CitationArchitectures)
+                {
+                    if (item != null && item.TryGetModel(out result)) return true;
+                }
+                return false;
+            }
+            finally { LingArchitectureLookup<TModel>.Exit(this); }
         }
 
         public override TUtility GetUtility<TUtility>()
@@ -266,15 +275,33 @@ namespace QFramework
         }
         public override bool TryGetUtility<TUtility>(out TUtility result)
         {
-            foreach (var item in CitationArchitectures)
-            {
-                if (item.TryGetUtility(out result))
-                {
-                    return true;
-                }
-            }
             result = null;
-            return false;
+            if (!LingArchitectureLookup<TUtility>.Enter(this)) return false;
+            try
+            {
+                if (Container.TryGet<TUtility>(out result)) return true;
+                foreach (var item in CitationArchitectures)
+                {
+                    if (item != null && item.TryGetUtility(out result)) return true;
+                }
+                return false;
+            }
+            finally { LingArchitectureLookup<TUtility>.Exit(this); }
         }
     }
+
+    // Shared across architecture types so A -> B -> A cannot recurse indefinitely.
+    internal static class LingArchitectureLookup<TModule>
+    {
+        [ThreadStatic] private static HashSet<ILingArchitecture> _visiting;
+
+        internal static bool Enter(ILingArchitecture architecture)
+        {
+            if (_visiting == null) _visiting = new HashSet<ILingArchitecture>();
+            return _visiting.Add(architecture);
+        }
+
+        internal static void Exit(ILingArchitecture architecture) => _visiting.Remove(architecture);
+    }
+
 }
